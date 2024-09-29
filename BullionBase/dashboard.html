@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BullionBase</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-6">BullionBase - Real-Time Precious Metals Tracker</h1>
+        
+        <!-- Selection for Gold Investments -->
+        <div class="bg-white shadow-md rounded p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Select Your Gold Investments</h2>
+            <div id="goldSelection" class="space-y-4">
+                <div class="flex space-x-4">
+                    <input type="number" id="goldQuantity1" class="p-2 border rounded" placeholder="Quantity (e.g., 2)">
+                    <input type="text" id="goldType1" class="p-2 border rounded" placeholder="Type (e.g., 1oz Bar)">
+                    <input type="number" id="goldPrice1" class="p-2 border rounded" placeholder="Price per Oz (e.g., 3537)">
+                </div>
+            </div>
+            <button id="addGold" class="mt-4 p-2 bg-blue-500 text-white rounded">Add More Gold</button>
+        </div>
+
+        <!-- Selection for Silver Investments -->
+        <div class="bg-white shadow-md rounded p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Select Your Silver Investments</h2>
+            <div id="silverSelection" class="space-y-4">
+                <div class="flex space-x-4">
+                    <input type="number" id="silverQuantity1" class="p-2 border rounded" placeholder="Quantity (e.g., 3)">
+                    <input type="text" id="silverType1" class="p-2 border rounded" placeholder="Type (e.g., 1oz Coin)">
+                    <input type="number" id="silverWeight1" class="p-2 border rounded" placeholder="Weight per unit (oz)">
+                    <input type="number" id="silverPrice1" class="p-2 border rounded" placeholder="Price per Oz (e.g., 42)">
+                </div>
+            </div>
+            <button id="addSilver" class="mt-4 p-2 bg-blue-500 text-white rounded">Add More Silver</button>
+        </div>
+
+        <!-- Display the Portfolio Summary -->
+        <div class="bg-white shadow-md rounded p-6 mb-6">
+            <div id="portfolio-summary" class="grid grid-cols-2 gap-4 text-center">
+                <div>
+                    <h2 class="text-xl font-semibold">Total Portfolio Value</h2>
+                    <p id="totalValue" class="text-2xl">$0.00 CAD</p>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold">Gold Holdings</h2>
+                    <p id="goldValue" class="text-2xl">$0.00 CAD</p>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold">Silver Holdings</h2>
+                    <p id="silverValue" class="text-2xl">$0.00 CAD</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-md rounded p-6 mb-6">
+            <canvas id="portfolioChart" class="w-full h-64"></canvas>
+        </div>
+    </div>
+    <script src="dashboard.js"></script>
+</body>
+</html>
