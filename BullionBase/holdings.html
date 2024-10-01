@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BullionBase Holdings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: #34495e;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.1em;
+        }
+
+        .holdings-container {
+            background-color: #ffffff;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            width: 600px;
+            text-align: center;
+            margin: 20px;
+        }
+
+        .holdings-header {
+            font-size: 1.6em;
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+
+        .product-section {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .product-section h3 {
+            color: #34495e;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .form-group label {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .form-group input {
+            flex: 2;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Prices</a>
+        <a href="graphs.html">Graphs</a>
+        <a href="holdings.html">Holdings</a>
+    </nav>
+
+    <div class="holdings-container">
+        <div class="holdings-header">Your Holdings</div>
+        
+        <!-- Section for Gold Bar Holdings -->
+        <div class="product-section" id="gold-bar-section">
+            <h3>1 oz Gold Bar</h3>
+            <div class="form-group">
+                <label for="gold-bar-quantity">Quantity Owned:</label>
+                <input type="number" id="gold-bar-quantity" placeholder="e.g., 2">
+            </div>
+            <div class="form-group">
+                <label for="gold-bar-buy-price">Price You Bought It For (per unit):</label>
+                <input type="number" id="gold-bar-buy-price" placeholder="e.g., 3500" step="0.01">
+            </div>
+            <div class="result" id="gold-bar-result">No data entered yet.</div>
+        </div>
+
+        <!-- Section for Gold Coin Holdings -->
+        <div class="product-section" id="gold-coin-section">
+            <h3>1 oz Random Date Gold Coin (Maple Leaf)</h3>
+            <div class="form-group">
+                <label for="gold-coin-quantity">Quantity Owned:</label>
+                <input type="number" id="gold-coin-quantity" placeholder="e.g., 3">
+            </div>
+            <div class="form-group">
+                <label for="gold-coin-buy-price">Price You Bought It For (per unit):</label>
+                <input type="number" id="gold-coin-buy-price" placeholder="e.g., 3400" step="0.01">
+            </div>
+            <div class="result" id="gold-coin-result">No data entered yet.</div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+            authDomain: "cangoldinvestment.firebaseapp.com",
+            databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
+            projectId: "cangoldinvestment",
+            storageBucket: "cangoldinvestment.appspot.com",
+            messagingSenderId: "1052369951680",
+            appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Save data to Firebase
+        const saveHoldings = () => {
+            const goldBarQuantity = document.getElementById("gold-bar-quantity").value;
+            const goldBarBuyPrice = document.getElementById("gold-bar-buy-price").value;
+            const goldCoinQuantity = document.getElementById("gold-coin-quantity").value;
+            const goldCoinBuyPrice = document.getElementById("gold-coin-buy-price").value;
+
+            set(ref(database, 'userHoldings'), {
+                goldBar: {
+                    quantity: goldBarQuantity,
+                    buyPrice: goldBarBuyPrice
+                },
+                goldCoin: {
+                    quantity: goldCoinQuantity,
+                    buyPrice: goldCoinBuyPrice
+                }
+            });
+        };
+
+        // Fetch data from Firebase
+        const fetchHoldings = () => {
+            const holdingsRef = ref(database, 'userHoldings');
+            onValue(holdingsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.goldBar) {
+                        document.getElementById("gold-bar-quantity").value = data.goldBar.quantity;
+                        document.getElementById("gold-bar-buy-price").value = data.goldBar.buyPrice;
+                    }
+                    if (data.goldCoin) {
+                        document.getElementById("gold-coin-quantity").value = data.goldCoin.quantity;
+                        document.getElementById("gold-coin-buy-price").value = data.goldCoin.buyPrice;
+                    }
+                    updateHoldings();
+                }
+            });
+        };
+
+        // Function to update holdings calculations
+        const updateHoldings = () => {
+            const goldBarQuantity = document.getElementById("gold-bar-quantity").value;
+            const goldBarBuyPrice = document.getElementById("gold-bar-buy-price").value;
+            const goldCoinQuantity = document.getElementById("gold-coin-quantity").value;
+            const goldCoinBuyPrice = document.getElementById("gold-coin-buy-price").value;
+
+            // Replace these with actual current prices from Firebase
+            const currentGoldBarSellPrice = 3610; 
+            const currentGoldCoinSellPrice = 3665; 
+
+            // Calculate and display the results for Gold Bar
+            if (goldBarQuantity && goldBarBuyPrice) {
+                const totalSellValue = goldBarQuantity * currentGoldBarSellPrice;
+                const totalBuyValue = goldBarQuantity * goldBarBuyPrice;
+                const profitLoss = totalSellValue - totalBuyValue;
+                document.getElementById("gold-bar-result").innerHTML = `
+                    <strong>Current Value:</strong> $${totalSellValue.toFixed(2)} CAD<br>
+                    <strong>Profit/Loss:</strong> $${profitLoss.toFixed(2)} CAD
+                `;
+            }
+
+            // Calculate and display the results for Gold Coin
+            if (goldCoinQuantity && goldCoinBuyPrice) {
+                const totalSellValue = goldCoinQuantity * currentGoldCoinSellPrice;
+                const totalBuyValue = goldCoinQuantity * goldCoinBuyPrice;
+                const profitLoss = totalSellValue - totalBuyValue;
+                document.getElementById("gold-coin-result").innerHTML = `
+                    <strong>Current Value:</strong> $${totalSellValue.toFixed(2)} CAD<br>
+                    <strong>Profit/Loss:</strong> $${profitLoss.toFixed(2)} CAD
+                `;
+            }
+        };
+
+        // Add event listeners
+        document.getElementById("gold-bar-quantity").addEventListener("input", () => { updateHoldings(); saveHoldings(); });
+        document.getElementById("gold-bar-buy-price").addEventListener("input", () => { updateHoldings(); saveHoldings(); });
+        document.getElementById("gold-coin-quantity").addEventListener("input", () => { updateHoldings(); saveHoldings(); });
+        document.getElementById("gold-coin-buy-price").addEventListener("input", () => { updateHoldings(); saveHoldings(); });
+
+        // Load saved holdings on page load
+        fetchHoldings();
+    </script>
+</body>
+</html>
