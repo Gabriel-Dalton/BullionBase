@@ -3,15 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Collection</title>
+    <title>Portfolio Overview</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
 </head>
 <body class="bg-gray-50">
+    <!-- Portfolio Summary Section -->
+    <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Portfolio Summary</h1>
+        <div id="portfolio-summary" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <div class="bg-blue-100 p-5 rounded shadow">
+                <h2 class="text-lg font-semibold text-blue-700">Sell Value</h2>
+                <p id="sell-price" class="text-2xl font-bold text-blue-800">$0.00</p>
+                <p class="text-sm text-gray-600">Estimated value if sold to VBCE</p>
+            </div>
+            <div class="bg-green-100 p-5 rounded shadow">
+                <h2 class="text-lg font-semibold text-green-700">Buy Value</h2>
+                <p id="buy-price" class="text-2xl font-bold text-green-800">$0.00</p>
+                <p class="text-sm text-gray-600">Cost to replace portfolio</p>
+            </div>
+            <div class="bg-gray-100 p-5 rounded shadow">
+                <h2 class="text-lg font-semibold text-gray-700">Total Portfolio Value</h2>
+                <p id="total-value" class="text-2xl font-bold text-gray-800">$0.00</p>
+                <p class="text-sm text-gray-600">Current market value</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Collection Section -->
     <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
-        <h1 class="text-3xl font-bold text-center mb-10 text-gray-800">Your Collection</h1>
+        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Your Collection</h2>
         <div id="dashboard" class="grid grid-cols-1 gap-4"></div>
         <div class="text-center mt-5">
             <a href="add-collection.html" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
@@ -35,15 +57,55 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        let vbcePrices = {};
+
+        // Fetch VBCE Prices
+        async function fetchVbcePrices() {
+            try {
+                const response = await fetch('https://rs1.smallfactory.dev/api/v1/metals?apikey=bc9959c3faab76071c6fb348c509f7f32');
+                const data = await response.json();
+                vbcePrices = data.reduce((acc, item) => {
+                    acc[item.name] = { buy: item.buy, sell: item.sell };
+                    return acc;
+                }, {});
+            } catch (error) {
+                console.error("Error fetching VBCE prices:", error);
+            }
+        }
+
         // Fetch User Collection
         function fetchUserCollection() {
             const userId = "demo_user";
             const collectionRef = database.ref(`users/${userId}/collection`);
 
-            collectionRef.on("value", (snapshot) => {
+            collectionRef.on("value", async (snapshot) => {
                 const data = snapshot.val();
+                await calculatePortfolioValue(data || {});
                 displayUserCollection(data || {});
             });
+        }
+
+        // Calculate Portfolio Value
+        async function calculatePortfolioValue(collection) {
+            let totalSellValue = 0;
+            let totalBuyValue = 0;
+            let totalMarketValue = 0;
+
+            for (const key in collection) {
+                const item = collection[key];
+                const vbceItem = vbcePrices[item.name];
+
+                if (vbceItem) {
+                    totalSellValue += vbceItem.sell * item.quantity;
+                    totalBuyValue += vbceItem.buy * item.quantity;
+                }
+
+                totalMarketValue += item.totalValue;
+            }
+
+            document.getElementById("sell-price").textContent = `$${totalSellValue.toFixed(2)}`;
+            document.getElementById("buy-price").textContent = `$${totalBuyValue.toFixed(2)}`;
+            document.getElementById("total-value").textContent = `$${totalMarketValue.toFixed(2)}`;
         }
 
         // Display User Collection
@@ -51,11 +113,8 @@
             const dashboard = document.getElementById("dashboard");
             dashboard.innerHTML = "";
 
-            let totalPortfolioValue = 0;
-
             for (const key in collection) {
                 const item = collection[key];
-                totalPortfolioValue += item.totalValue;
 
                 const itemElement = document.createElement("div");
                 itemElement.classList.add("bg-gray-100", "p-4", "rounded", "shadow", "flex", "justify-between", "items-center");
@@ -74,11 +133,6 @@
                 `;
                 dashboard.appendChild(itemElement);
             }
-
-            const totalValueElement = document.createElement("h2");
-            totalValueElement.classList.add("text-xl", "font-bold", "mt-4");
-            totalValueElement.textContent = `Total Portfolio Value: $${totalPortfolioValue.toFixed(2)}`;
-            dashboard.appendChild(totalValueElement);
         }
 
         // Remove Item from Collection
@@ -98,7 +152,12 @@
         }
 
         // Initialize
-        fetchUserCollection();
+        async function init() {
+            await fetchVbcePrices();
+            fetchUserCollection();
+        }
+
+        init();
     </script>
 </body>
 </html>
