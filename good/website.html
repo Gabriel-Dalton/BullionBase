@@ -1,37 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Price Fetcher</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-100">
-
-    <!-- Main Container -->
     <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
         <h1 class="text-3xl font-bold text-center mb-10 text-gray-800">Current Prices</h1>
-
-        <!-- Displaying Prices -->
         <div id="price-display" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
     </div>
 
     <script>
-        // Function to search for the correct API key in the page's network traffic
-        async function fetchApiKey() {
-            // Here, we're simulating fetching the API key, but realistically
-            // this would require either server-side code or a pre-known API key
-            // due to browser restrictions on accessing network traffic directly.
+       async function fetchApiKey() {
+       const fallbackApiKey = 'bc9959c3faab76071c6fb348c509f7f32';
 
-            // For now, we will return the API key manually or dynamically
-            const fallbackApiKey = 'bc9959c3faab76071c6fb348c509f7f32'; // Placeholder
+            return fallbackApiKey;
+        }   
 
-            return fallbackApiKey; // In a real scenario, dynamically capture this.
-        }
-
-        // Function to fetch data using the API key
         async function fetchPrices(apiKey) {
             try {
                 const response = await fetch(`https://rs1.smallfactory.dev/api/v1/metals?apikey=${apiKey}`);
@@ -42,22 +29,19 @@
             }
         }
 
-        // Function to display prices on the page
         function displayPrices(data) {
             const priceDisplay = document.getElementById('price-display');
-            priceDisplay.innerHTML = '';  // Clear previous content
+            priceDisplay.innerHTML = ''; 
 
-            // Check if we got valid data
             if (data && Array.isArray(data)) {
                 data.forEach(priceInfo => {
                     const priceElement = document.createElement('div');
                     priceElement.classList.add('bg-white', 'rounded-lg', 'shadow-lg', 'p-5', 'flex', 'flex-col', 'items-center');
                     
-                    const imageUrl = priceInfo.image[0]?.full || ''; // Ensure image is defined
-                    const itemName = priceInfo.name || 'Unknown item'; // Ensure item name is defined
-                    const priceBuy = priceInfo.buy || 'Price not available'; // Ensure buy price is defined
+                    const imageUrl = priceInfo.image[0]?.full || '';
+                    const itemName = priceInfo.name || 'Unknown item';
+                    const priceBuy = priceInfo.buy || 'Price not available';
                     
-                    // Populate the element with the metal data
                     priceElement.innerHTML = `
                         <img class="w-40 h-40 object-cover rounded-full mb-5" src="${imageUrl}" alt="${itemName}">
                         <h2 class="text-xl font-semibold text-gray-800">${itemName}</h2>
@@ -70,7 +54,6 @@
             }
         }
 
-        // Main function to initialize fetching
         async function init() {
             const apiKey = await fetchApiKey();
             if (apiKey) {
@@ -80,7 +63,6 @@
             }
         }
 
-        // Call the init function on page load
         window.onload = init;
     </script>
 </body>
