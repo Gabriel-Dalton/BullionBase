@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold & Silver Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Dashboard Section -->
+    <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
+        <h1 class="text-3xl font-bold text-center mb-10 text-gray-800">Your Collection</h1>
+        <div id="dashboard" class="grid grid-cols-1 gap-4"></div>
+        <div class="text-center mt-5">
+            <a href="add-collection.html" class="bg-blue-500 text-white py-2 px-4 rounded">
+                Add to Collection
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+            authDomain: "cangoldinvestment.firebaseapp.com",
+            databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
+            projectId: "cangoldinvestment",
+            storageBucket: "cangoldinvestment.appspot.com",
+            messagingSenderId: "1052369951680",
+            appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Fetch User Collection
+        function fetchUserCollection() {
+            const userId = "demo_user";
+            const collectionRef = database.ref(`users/${userId}/collection`);
+
+            collectionRef.on("value", (snapshot) => {
+                const data = snapshot.val();
+                displayUserCollection(data || {});
+            });
+        }
+
+        // Display User Collection
+        function displayUserCollection(collection) {
+            const dashboard = document.getElementById("dashboard");
+            dashboard.innerHTML = "";
+
+            let totalPortfolioValue = 0;
+
+            for (const key in collection) {
+                const item = collection[key];
+                totalPortfolioValue += item.totalValue;
+
+                const itemElement = document.createElement("div");
+                itemElement.classList.add("bg-gray-100", "p-4", "rounded", "shadow");
+
+                itemElement.innerHTML = `
+                    <h3 class="text-lg font-semibold">${item.name}</h3>
+                    <p>Quantity: ${item.quantity}</p>
+                    <p>Total Value: $${item.totalValue.toFixed(2)}</p>
+                `;
+                dashboard.appendChild(itemElement);
+            }
+
+            const totalValueElement = document.createElement("h2");
+            totalValueElement.classList.add("text-xl", "font-bold", "mt-4");
+            totalValueElement.textContent = `Total Portfolio Value: $${totalPortfolioValue.toFixed(2)}`;
+            dashboard.appendChild(totalValueElement);
+        }
+
+        // Initialize
+        fetchUserCollection();
+    </script>
+</body>
+</html>
