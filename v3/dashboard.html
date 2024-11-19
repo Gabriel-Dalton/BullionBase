@@ -3,65 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Fetcher & Collection Manager</title>
+    <title>Price Fetcher & Collection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-blue-600 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Price Manager</h1>
+            <h1 class="text-2xl font-bold">Price & Collection Manager</h1>
             <div>
-                <button onclick="showPage('prices')" class="px-4 py-2 bg-blue-700 rounded">Prices</button>
-                <button onclick="showPage('collection')" class="px-4 py-2 bg-blue-700 rounded">My Collection</button>
+                <button onclick="showPage('prices-page')" class="px-4 py-2 bg-blue-700 rounded">Prices</button>
+                <button onclick="showPage('dashboard-page')" class="px-4 py-2 bg-blue-700 rounded">Dashboard</button>
             </div>
         </div>
     </nav>
 
-    <!-- Price Fetcher -->
+    <!-- Prices Page -->
     <div id="prices-page" class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
         <h1 class="text-3xl font-bold text-center mb-10 text-gray-800">Current Prices</h1>
         <div id="price-display" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
     </div>
 
-    <!-- Collection Manager -->
-    <div id="collection-page" class="hidden container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
-        <h1 class="text-3xl font-bold text-center mb-10 text-gray-800">My Collection</h1>
-        <form id="add-item-form" class="mb-5">
-            <input type="text" id="item-name" placeholder="Item Name" class="border p-2 rounded w-full mb-2" required>
-            <input type="number" id="buy-price" placeholder="Buy Price" class="border p-2 rounded w-full mb-2" required>
-            <input type="number" id="sell-price" placeholder="Sell Price" class="border p-2 rounded w-full mb-2" required>
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Add Item</button>
-        </form>
-        <div id="collection-display" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    <!-- Dashboard Page -->
+    <div id="dashboard-page" class="hidden container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
+        <h1 class="text-3xl font-bold text-center mb-10 text-gray-800">Collection Dashboard</h1>
+        <p class="text-gray-700 text-lg text-center">Total Collection Value: <span id="total-value" class="font-bold text-green-600"></span></p>
+        <div id="collection-display" class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-5"></div>
     </div>
 
     <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
-    authDomain: "cangoldinvestment.firebaseapp.com",
-    databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
-    projectId: "cangoldinvestment",
-    storageBucket: "cangoldinvestment.firebasestorage.app",
-    messagingSenderId: "1052369951680",
-    appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
-  };
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+            authDomain: "cangoldinvestment.firebaseapp.com",
+            databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
+            projectId: "cangoldinvestment",
+            storageBucket: "cangoldinvestment.appspot.com",
+            messagingSenderId: "1052369951680",
+            appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
+        };
 
+        // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(app);
+        const db = firebase.database();
 
         // Page Navigation
-        function showPage(page) {
+        function showPage(pageId) {
             document.getElementById('prices-page').classList.add('hidden');
-            document.getElementById('collection-page').classList.add('hidden');
-            document.getElementById(`${page}-page`).classList.remove('hidden');
+            document.getElementById('dashboard-page').classList.add('hidden');
+            document.getElementById(pageId).classList.remove('hidden');
+
+            if (pageId === 'dashboard-page') fetchCollection();
         }
 
-        // Fetch Prices
-        async function fetchPrices() {
+        // Fetch Prices and Display
+        async function fetchApiKey() {
+            return 'bc9959c3faab76071c6fb348c509f7f32';
+        }
+
+        async function fetchPrices(apiKey) {
             try {
-                const response = await fetch('https://rs1.smallfactory.dev/api/v1/metals?apikey=YOUR_API_KEY');
+                const response = await fetch(`https://rs1.smallfactory.dev/api/v1/metals?apikey=${apiKey}`);
                 const data = await response.json();
                 displayPrices(data);
             } catch (error) {
@@ -72,59 +75,89 @@
         function displayPrices(data) {
             const priceDisplay = document.getElementById('price-display');
             priceDisplay.innerHTML = '';
-            data.forEach(item => {
-                const priceCard = `
-                    <div class="bg-gray-100 p-4 rounded shadow">
-                        <h2 class="text-xl font-bold">${item.name}</h2>
-                        <p>Buy Price: ${item.buy}</p>
-                        <p>Sell Price: ${item.sell}</p>
-                    </div>`;
-                priceDisplay.innerHTML += priceCard;
+
+            if (data && Array.isArray(data)) {
+                data.forEach(item => {
+                    const priceElement = document.createElement('div');
+                    priceElement.classList.add('bg-white', 'rounded-lg', 'shadow-lg', 'p-5', 'flex', 'flex-col', 'items-center');
+
+                    const imageUrl = item.image[0]?.full || '';
+                    const itemName = item.name || 'Unknown item';
+                    const priceBuy = item.buy || 'Price not available';
+
+                    priceElement.innerHTML = `
+                        <img class="w-40 h-40 object-cover rounded-full mb-5" src="${imageUrl}" alt="${itemName}">
+                        <h2 class="text-xl font-semibold text-gray-800">${itemName}</h2>
+                        <p class="text-gray-600 mt-2">Buy Price: <span class="text-green-600 font-bold">${priceBuy}</span></p>
+                        <input type="number" id="quantity-${itemName.replace(/\s/g, '-')}" class="border p-2 rounded w-full mt-2" placeholder="Quantity" min="0">
+                        <button onclick="addToCollection('${itemName}', ${priceBuy})" class="bg-green-600 text-white px-4 py-2 rounded mt-2">Add to Collection</button>
+                    `;
+                    priceDisplay.appendChild(priceElement);
+                });
+            } else {
+                priceDisplay.innerHTML = '<p class="text-center text-red-500">Unable to fetch prices at this time.</p>';
+            }
+        }
+
+        // Add to Collection
+        function addToCollection(name, buyPrice) {
+            const quantityInput = document.getElementById(`quantity-${name.replace(/\s/g, '-')}`);
+            const quantity = parseInt(quantityInput.value) || 0;
+
+            if (quantity > 0) {
+                const collectionRef = db.ref('collection/' + name);
+                collectionRef.set({ name, buyPrice, quantity }, error => {
+                    if (error) {
+                        alert('Error adding to collection');
+                    } else {
+                        alert(`${quantity} of ${name} added to your collection!`);
+                        quantityInput.value = ''; // Reset input
+                    }
+                });
+            } else {
+                alert('Please enter a valid quantity.');
+            }
+        }
+
+        // Fetch Collection and Display
+        function fetchCollection() {
+            const collectionRef = db.ref('collection');
+            collectionRef.once('value', snapshot => {
+                const collectionDisplay = document.getElementById('collection-display');
+                const totalValueElement = document.getElementById('total-value');
+                collectionDisplay.innerHTML = '';
+                let totalValue = 0;
+
+                snapshot.forEach(childSnapshot => {
+                    const item = childSnapshot.val();
+                    const itemValue = item.buyPrice * item.quantity;
+                    totalValue += itemValue;
+
+                    const collectionElement = `
+                        <div class="bg-white rounded-lg shadow-lg p-5 flex flex-col items-center">
+                            <h2 class="text-xl font-semibold text-gray-800">${item.name}</h2>
+                            <p class="text-gray-600 mt-2">Quantity: <span class="font-bold">${item.quantity}</span></p>
+                            <p class="text-gray-600 mt-2">Total Value: <span class="text-green-600 font-bold">${itemValue.toFixed(2)}</span></p>
+                        </div>
+                    `;
+                    collectionDisplay.innerHTML += collectionElement;
+                });
+
+                totalValueElement.textContent = `$${totalValue.toFixed(2)}`;
             });
         }
-
-        // Collection Management
-        async function addItemToCollection(name, buyPrice, sellPrice) {
-            await db.collection('collection').add({ name, buyPrice, sellPrice });
-            fetchCollection();
-        }
-
-        async function fetchCollection() {
-            const collectionDisplay = document.getElementById('collection-display');
-            collectionDisplay.innerHTML = '';
-            const snapshot = await db.collection('collection').get();
-            snapshot.forEach(doc => {
-                const item = doc.data();
-                const profit = item.sellPrice - item.buyPrice;
-                const itemCard = `
-                    <div class="bg-gray-100 p-4 rounded shadow">
-                        <h2 class="text-xl font-bold">${item.name}</h2>
-                        <p>Buy Price: ${item.buyPrice}</p>
-                        <p>Sell Price: ${item.sellPrice}</p>
-                        <p>Profit/Loss: <span class="${profit >= 0 ? 'text-green-600' : 'text-red-600'}">${profit}</span></p>
-                        <button onclick="removeItem('${doc.id}')" class="bg-red-600 text-white px-4 py-2 rounded mt-2">Remove</button>
-                    </div>`;
-                collectionDisplay.innerHTML += itemCard;
-            });
-        }
-
-        async function removeItem(id) {
-            await db.collection('collection').doc(id).delete();
-            fetchCollection();
-        }
-
-        document.getElementById('add-item-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('item-name').value;
-            const buyPrice = parseFloat(document.getElementById('buy-price').value);
-            const sellPrice = parseFloat(document.getElementById('sell-price').value);
-            await addItemToCollection(name, buyPrice, sellPrice);
-            e.target.reset();
-        });
 
         // Initialize
-        fetchPrices();
-        fetchCollection();
+        async function init() {
+            const apiKey = await fetchApiKey();
+            if (apiKey) {
+                await fetchPrices(apiKey);
+            } else {
+                document.getElementById('price-display').innerHTML = '<p class="text-center text-red-500">API key not found.</p>';
+            }
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
