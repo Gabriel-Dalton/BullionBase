@@ -48,8 +48,3 @@ BullionBase simplifies your gold and silver investment tracking by fetching real
 - **Export Portfolio**: Allow users to export their portfolio data as a CSV or PDF.
 - **More Metals**: Expand support to track other precious metals like platinum or palladium.
 - **Advanced Analytics**: Provide trends and historical data for better decision-making.
-
----
-
-## Screenshots
-### Coming soon.
