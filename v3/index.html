@@ -3,35 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Overview</title>
+    <title>BullionBase - Portfolio Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
+    <style>
+        body {
+            background-image: linear-gradient(to right, #f3f4f6, #d4af37);
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        .dashboard-title {
+            color: #b8860b; /* Gold */
+        }
+        .card {
+            background: #f7f5f0; /* Light gold-inspired */
+        }
+        .card:hover {
+            background: #ffecb3; /* Subtle highlight for interaction */
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Portfolio Summary Section -->
-    <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Portfolio Summary</h1>
-        <div id="portfolio-summary" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
-            <div class="bg-blue-100 p-5 rounded shadow">
-                <h2 class="text-lg font-semibold text-blue-700">Sell Value</h2>
-                <p id="sell-price" class="text-2xl font-bold text-blue-800">$0.00</p>
-                <p class="text-sm text-gray-600">Estimated value if sold to VBCE</p>
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-800 text-white shadow-lg">
+        <div class="container mx-auto px-5 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">BullionBase</h1>
+            <div class="space-x-4">
+                <a href="index.html" class="hover:text-yellow-500">Dashboard</a>
+                <a href="add-collection.html" class="hover:text-yellow-500">Add to Collection</a>
             </div>
-            <div class="bg-green-100 p-5 rounded shadow">
-                <h2 class="text-lg font-semibold text-green-700">Buy Value</h2>
-                <p id="buy-price" class="text-2xl font-bold text-green-800">$0.00</p>
+        </div>
+    </nav>
+
+    <!-- Portfolio Summary Section -->
+    <div class="container mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
+        <h1 class="text-4xl font-extrabold text-center mb-6 dashboard-title">Portfolio Summary</h1>
+        <div id="portfolio-summary" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+            <div class="p-5 card rounded shadow">
+                <h2 class="text-lg font-semibold text-gray-800">Sell Value</h2>
+                <p id="sell-price" class="text-2xl font-bold text-gray-900">$0.00</p>
+                <p class="text-sm text-gray-600">Value if sold to VBCE</p>
+            </div>
+            <div class="p-5 card rounded shadow">
+                <h2 class="text-lg font-semibold text-gray-800">Buy Value</h2>
+                <p id="buy-price" class="text-2xl font-bold text-gray-900">$0.00</p>
                 <p class="text-sm text-gray-600">Cost to replace portfolio</p>
             </div>
         </div>
     </div>
 
     <!-- Collection Section -->
-    <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
-        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Your Collection</h2>
-        <div id="dashboard" class="grid grid-cols-1 gap-4"></div>
-        <div class="text-center mt-5">
-            <a href="add-collection.html" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+    <div class="container mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
+        <h2 class="text-3xl font-bold text-center mb-6 dashboard-title">Your Collection</h2>
+        <div id="dashboard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div class="text-center mt-6">
+            <a href="add-collection.html" class="bg-yellow-500 text-white py-3 px-6 rounded shadow hover:bg-yellow-600">
                 Add to Collection
             </a>
         </div>
@@ -108,11 +135,11 @@
                 const item = collection[key];
 
                 const itemElement = document.createElement("div");
-                itemElement.classList.add("bg-gray-100", "p-4", "rounded", "shadow", "flex", "justify-between", "items-center");
+                itemElement.classList.add("card", "p-4", "rounded", "shadow", "flex", "justify-between", "items-center");
 
                 itemElement.innerHTML = `
                     <div>
-                        <h3 class="text-lg font-semibold">${item.name}</h3>
+                        <h3 class="text-lg font-semibold text-gray-800">${item.name}</h3>
                         <p>Quantity: ${item.quantity}</p>
                         <p>Sell Value: $${(item.quantity * vbcePrices[item.name]?.buy || 0).toFixed(2)}</p>
                         <p>Buy Value: $${(item.quantity * vbcePrices[item.name]?.sell || 0).toFixed(2)}</p>
