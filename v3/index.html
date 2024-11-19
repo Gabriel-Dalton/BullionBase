@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gold & Silver Tracker</title>
+    <title>View Collection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
 </head>
-<body class="bg-gray-100">
-    <!-- Dashboard Section -->
+<body class="bg-gray-50">
+    <!-- Collection Section -->
     <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
         <h1 class="text-3xl font-bold text-center mb-10 text-gray-800">Your Collection</h1>
         <div id="dashboard" class="grid grid-cols-1 gap-4"></div>
         <div class="text-center mt-5">
-            <a href="add-collection.html" class="bg-blue-500 text-white py-2 px-4 rounded">
+            <a href="add-collection.html" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
                 Add to Collection
             </a>
         </div>
@@ -58,12 +58,19 @@
                 totalPortfolioValue += item.totalValue;
 
                 const itemElement = document.createElement("div");
-                itemElement.classList.add("bg-gray-100", "p-4", "rounded", "shadow");
+                itemElement.classList.add("bg-gray-100", "p-4", "rounded", "shadow", "flex", "justify-between", "items-center");
 
                 itemElement.innerHTML = `
-                    <h3 class="text-lg font-semibold">${item.name}</h3>
-                    <p>Quantity: ${item.quantity}</p>
-                    <p>Total Value: $${item.totalValue.toFixed(2)}</p>
+                    <div>
+                        <h3 class="text-lg font-semibold">${item.name}</h3>
+                        <p>Quantity: ${item.quantity}</p>
+                        <p>Total Value: $${item.totalValue.toFixed(2)}</p>
+                    </div>
+                    <button onclick="removeItem('${key}')" class="text-red-500 hover:text-red-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 `;
                 dashboard.appendChild(itemElement);
             }
@@ -72,6 +79,22 @@
             totalValueElement.classList.add("text-xl", "font-bold", "mt-4");
             totalValueElement.textContent = `Total Portfolio Value: $${totalPortfolioValue.toFixed(2)}`;
             dashboard.appendChild(totalValueElement);
+        }
+
+        // Remove Item from Collection
+        function removeItem(itemId) {
+            const userId = "demo_user";
+            const itemRef = database.ref(`users/${userId}/collection/${itemId}`);
+
+            if (confirm("Are you sure you want to remove this item?")) {
+                itemRef.remove()
+                    .then(() => {
+                        alert("Item removed successfully!");
+                    })
+                    .catch((error) => {
+                        console.error("Error removing item:", error);
+                    });
+            }
         }
 
         // Initialize
