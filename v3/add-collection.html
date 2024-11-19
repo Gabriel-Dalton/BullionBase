@@ -3,18 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add to Collection</title>
+    <title>Add to Collection - BullionBase</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
+    <style>
+        body {
+            background-image: linear-gradient(to right, #f3f4f6, #d4af37);
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        .page-title {
+            color: #b8860b; /* Gold */
+        }
+        .card {
+            background: #fffef6; /* Light gold-inspired */
+            border: 1px solid #d4af37; /* Gold border */
+        }
+        .card:hover {
+            background: #fdf6da; /* Subtle highlight for hover */
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #d4af37; /* Gold */
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background-color: #c79a30; /* Darker gold */
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     <!-- Add Collection Section -->
-    <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
-        <h1 class="text-3xl font-bold text-center mb-10 text-gray-800">Add to Collection</h1>
+    <div class="container mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
+        <h1 class="text-4xl font-extrabold text-center mb-10 page-title">Add to Collection</h1>
         <div id="price-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-        <div class="text-center mt-5">
-            <a href="index.html" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+        <div class="text-center mt-8">
+            <a href="index.html" class="btn-primary py-3 px-6 rounded shadow">
                 View Collection
             </a>
         </div>
@@ -56,7 +82,7 @@
             if (data && Array.isArray(data)) {
                 data.forEach(priceInfo => {
                     const priceElement = document.createElement('div');
-                    priceElement.classList.add('bg-white', 'rounded-lg', 'shadow-lg', 'p-5', 'flex', 'flex-col', 'items-center');
+                    priceElement.classList.add('card', 'rounded-lg', 'shadow-lg', 'p-5', 'flex', 'flex-col', 'items-center');
 
                     const imageUrl = priceInfo.image[0]?.full || '';
                     const itemName = priceInfo.name || 'Unknown item';
@@ -68,7 +94,7 @@
                         <p class="text-gray-600 mt-2">Buy Price: <span class="text-green-600 font-bold">${priceBuy}</span></p>
                         <input type="number" id="quantity-${itemName}" placeholder="Quantity" class="mt-3 p-2 border rounded w-full">
                         <button onclick="addToCollection('${itemName}', document.getElementById('quantity-${itemName}').value, ${priceBuy})" 
-                            class="mt-2 bg-blue-500 text-white py-2 px-4 rounded w-full hover:bg-blue-600">
+                            class="btn-primary mt-3 py-2 px-4 rounded w-full shadow">
                             Add to Collection
                         </button>
                     `;
