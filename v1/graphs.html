@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BullionBase Graphs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: #34495e;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.1em;
+        }
+
+        canvas {
+            margin-top: 20px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Prices</a>
+        <a href="graphs.html">Graphs</a>
+    </nav>
+
+    <h2>BullionBase Price Trends</h2>
+    <canvas id="goldPriceChart" width="800" height="400"></canvas>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+            authDomain: "cangoldinvestment.firebaseapp.com",
+            databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
+            projectId: "cangoldinvestment",
+            storageBucket: "cangoldinvestment.appspot.com",
+            messagingSenderId: "1052369951680",
+            appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const ctx = document.getElementById('goldPriceChart').getContext('2d');
+        const goldPriceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'We Buy Price (CAD)',
+                        data: [],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: false,
+                    },
+                    {
+                        label: 'We Sell Price (CAD)',
+                        data: [],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Timestamp'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Price (CAD)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Fetch data from Firebase Realtime Database
+        const pricesRef = ref(database, 'goldPrices');
+        onValue(pricesRef, (snapshot) => {
+            const data = snapshot.val();
+            const labels = [];
+            const sellPrices = [];
+            const buyPrices = [];
+
+            for (const key in data) {
+                labels.push(new Date(data[key].timestamp).toLocaleString());
+                sellPrices.push(data[key].sellPrice);
+                buyPrices.push(data[key].buyPrice);
+            }
+
+            // Update the chart data
+            goldPriceChart.data.labels = labels;
+            goldPriceChart.data.datasets[0].data = sellPrices;
+            goldPriceChart.data.datasets[1].data = buyPrices;
+            goldPriceChart.update();
+        });
+    </script>
+</body>
+</html>
