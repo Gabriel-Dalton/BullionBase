@@ -12,7 +12,7 @@
     <!-- Portfolio Summary Section -->
     <div class="container mx-auto my-10 p-5 bg-white shadow-lg rounded-lg">
         <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Portfolio Summary</h1>
-        <div id="portfolio-summary" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+        <div id="portfolio-summary" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
             <div class="bg-blue-100 p-5 rounded shadow">
                 <h2 class="text-lg font-semibold text-blue-700">Sell Value</h2>
                 <p id="sell-price" class="text-2xl font-bold text-blue-800">$0.00</p>
@@ -22,11 +22,6 @@
                 <h2 class="text-lg font-semibold text-green-700">Buy Value</h2>
                 <p id="buy-price" class="text-2xl font-bold text-green-800">$0.00</p>
                 <p class="text-sm text-gray-600">Cost to replace portfolio</p>
-            </div>
-            <div class="bg-gray-100 p-5 rounded shadow">
-                <h2 class="text-lg font-semibold text-gray-700">Total Portfolio Value</h2>
-                <p id="total-value" class="text-2xl font-bold text-gray-800">$0.00</p>
-                <p class="text-sm text-gray-600">Current market value</p>
             </div>
         </div>
     </div>
@@ -43,7 +38,7 @@
     </div>
 
     <script>
-        // Initialize Firebase
+        // Firebase Initialization
         const firebaseConfig = {
             apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
             authDomain: "cangoldinvestment.firebaseapp.com",
@@ -87,25 +82,21 @@
 
         // Calculate Portfolio Value
         async function calculatePortfolioValue(collection) {
-            let totalSellValue = 0;
-            let totalBuyValue = 0;
-            let totalMarketValue = 0;
+            let totalSellValue = 0; // VBCE's buy price (Sell to VBCE)
+            let totalBuyValue = 0;  // VBCE's sell price (Buy from VBCE)
 
             for (const key in collection) {
                 const item = collection[key];
                 const vbceItem = vbcePrices[item.name];
 
                 if (vbceItem) {
-                    totalSellValue += vbceItem.sell * item.quantity;
-                    totalBuyValue += vbceItem.buy * item.quantity;
+                    totalSellValue += vbceItem.buy * item.quantity; // Use VBCE's buy price for Sell Value
+                    totalBuyValue += vbceItem.sell * item.quantity; // Use VBCE's sell price for Buy Value
                 }
-
-                totalMarketValue += item.totalValue;
             }
 
             document.getElementById("sell-price").textContent = `$${totalSellValue.toFixed(2)}`;
             document.getElementById("buy-price").textContent = `$${totalBuyValue.toFixed(2)}`;
-            document.getElementById("total-value").textContent = `$${totalMarketValue.toFixed(2)}`;
         }
 
         // Display User Collection
@@ -123,7 +114,8 @@
                     <div>
                         <h3 class="text-lg font-semibold">${item.name}</h3>
                         <p>Quantity: ${item.quantity}</p>
-                        <p>Total Value: $${item.totalValue.toFixed(2)}</p>
+                        <p>Sell Value: $${(item.quantity * vbcePrices[item.name]?.buy || 0).toFixed(2)}</p>
+                        <p>Buy Value: $${(item.quantity * vbcePrices[item.name]?.sell || 0).toFixed(2)}</p>
                     </div>
                     <button onclick="removeItem('${key}')" class="text-red-500 hover:text-red-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
