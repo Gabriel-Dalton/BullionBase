@@ -9,57 +9,73 @@
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
     <style>
         body {
-            background-image: linear-gradient(to right, #f3f4f6, #d4af37);
+            background: linear-gradient(to right, #fafafa, #f5f5f5);
             background-attachment: fixed;
-            background-size: cover;
+            font-family: 'Inter', sans-serif;
         }
         .dashboard-title {
-            color: #b8860b;
+            color: #B6862A; /* Gold-inspired color */
         }
         .card {
-            background: #f7f5f0;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card:hover {
-            background: #ffecb3;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .button-primary {
+            background-color: #B6862A;
+            color: white;
+        }
+        .button-primary:hover {
+            background-color: #A2751E;
         }
     </style>
 </head>
-<body class="bg-gray-50">
-    <nav class="bg-gray-800 text-white shadow-lg">
-        <div class="container mx-auto px-5 py-3 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">BullionBase</h1>
-            <div class="space-x-4">
-                <a href="index.html" class="hover:text-yellow-500">Dashboard</a>
-                <a href="add-collection.html" class="hover:text-yellow-500">Add to Collection</a>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-900 text-white shadow-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wide">BullionBase</h1>
+            <div class="flex space-x-6">
+                <a href="index.html" class="hover:text-yellow-400 font-medium">Dashboard</a>
+                <a href="add-collection.html" class="hover:text-yellow-400 font-medium">Add to Collection</a>
             </div>
         </div>
     </nav>
-    <div class="container mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
-        <h1 class="text-4xl font-extrabold text-center mb-6 dashboard-title">Portfolio Summary</h1>
-        <div id="portfolio-summary" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
-            <div class="p-5 card rounded shadow">
-                <h2 class="text-lg font-semibold text-gray-800">Sell Value</h2>
-                <p id="sell-price" class="text-2xl font-bold text-gray-900">$0.00</p>
-                <p class="text-sm text-gray-600">Value if sold to VBCE</p>
+
+    <!-- Portfolio Summary Section -->
+    <div class="container mx-auto my-8 px-4">
+        <h1 class="text-4xl font-extrabold text-center mb-8 dashboard-title">Portfolio Summary</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card rounded-lg p-6 text-center">
+                <h2 class="text-lg font-semibold text-gray-700">Sell Value</h2>
+                <p id="sell-price" class="text-3xl font-bold text-gray-900 mt-2">$0.00</p>
+                <p class="text-sm text-gray-500">Value if sold to VBCE</p>
             </div>
-            <div class="p-5 card rounded shadow">
-                <h2 class="text-lg font-semibold text-gray-800">Buy Value</h2>
-                <p id="buy-price" class="text-2xl font-bold text-gray-900">$0.00</p>
-                <p class="text-sm text-gray-600">Cost to replace portfolio</p>
+            <div class="card rounded-lg p-6 text-center">
+                <h2 class="text-lg font-semibold text-gray-700">Buy Value</h2>
+                <p id="buy-price" class="text-3xl font-bold text-gray-900 mt-2">$0.00</p>
+                <p class="text-sm text-gray-500">Cost to replace portfolio</p>
             </div>
         </div>
     </div>
-    <div class="container mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
-        <h2 class="text-3xl font-bold text-center mb-6 dashboard-title">Your Collection</h2>
-        <div id="dashboard" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        <div class="text-center mt-6">
-            <a href="add-collection.html" class="bg-yellow-500 text-white py-3 px-6 rounded shadow hover:bg-yellow-600">
+
+    <!-- User Collection Section -->
+    <div class="container mx-auto my-8 px-4">
+        <h2 class="text-3xl font-bold text-center mb-8 dashboard-title">Your Collection</h2>
+        <div id="dashboard" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        <div class="text-center mt-8">
+            <a href="add-collection.html" class="button-primary px-6 py-3 rounded-md shadow-md hover:bg-yellow-600 font-semibold">
                 Add to Collection
             </a>
         </div>
     </div>
 
     <script>
+        // Firebase Initialization
         const firebaseConfig = {
             apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
             authDomain: "cangoldinvestment.firebaseapp.com",
@@ -100,16 +116,16 @@
         }
 
         async function calculatePortfolioValue(collection) {
-            let totalSellValue = 0; 
-            let totalBuyValue = 0; 
+            let totalSellValue = 0;
+            let totalBuyValue = 0;
 
             for (const key in collection) {
                 const item = collection[key];
                 const vbceItem = vbcePrices[item.name];
 
                 if (vbceItem) {
-                    totalSellValue += vbceItem.buy * item.quantity; 
-                    totalBuyValue += vbceItem.sell * item.quantity; 
+                    totalSellValue += vbceItem.buy * item.quantity;
+                    totalBuyValue += vbceItem.sell * item.quantity;
                 }
             }
 
@@ -125,16 +141,16 @@
                 const item = collection[key];
 
                 const itemElement = document.createElement("div");
-                itemElement.classList.add("card", "p-4", "rounded", "shadow", "flex", "justify-between", "items-center");
+                itemElement.classList.add("card", "p-4", "rounded-lg", "shadow", "flex", "justify-between", "items-center");
 
                 itemElement.innerHTML = `
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-800">${item.name}</h3>
-                        <p>Quantity: ${item.quantity}</p>
-                        <p>Sell Value: $${(item.quantity * vbcePrices[item.name]?.buy || 0).toFixed(2)}</p>
-                        <p>Buy Value: $${(item.quantity * vbcePrices[item.name]?.sell || 0).toFixed(2)}</p>
+                        <h3 class="text-lg font-semibold text-gray-700">${item.name}</h3>
+                        <p class="text-sm text-gray-500">Quantity: ${item.quantity}</p>
+                        <p class="text-sm text-gray-500">Sell Value: $${(item.quantity * vbcePrices[item.name]?.buy || 0).toFixed(2)}</p>
+                        <p class="text-sm text-gray-500">Buy Value: $${(item.quantity * vbcePrices[item.name]?.sell || 0).toFixed(2)}</p>
                     </div>
-                    <button onclick="removeItem('${key}')" class="text-red-500 hover:text-red-700">
+                    <button onclick="removeItem('${key}')" class="text-red-500 hover:text-red-600">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
