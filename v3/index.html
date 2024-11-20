@@ -14,7 +14,7 @@
             font-family: 'Inter', sans-serif;
         }
         .dashboard-title {
-            color: #B6862A; /* Gold-inspired color */
+            color: #B6862A;
         }
         .card {
             background: #fff;
@@ -32,10 +32,26 @@
         .button-primary:hover {
             background-color: #A2751E;
         }
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .checkmark-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #4CAF50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+        .checkmark {
+            font-size: 40px;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="bg-gray-900 text-white shadow-md">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold tracking-wide">BullionBase</h1>
@@ -46,7 +62,6 @@
         </div>
     </nav>
 
-    <!-- Portfolio Summary Section -->
     <div class="container mx-auto my-8 px-4">
         <h1 class="text-4xl font-extrabold text-center mb-8 dashboard-title">Portfolio Summary</h1>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -63,7 +78,6 @@
         </div>
     </div>
 
-    <!-- User Collection Section -->
     <div class="container mx-auto my-8 px-4">
         <h2 class="text-3xl font-bold text-center mb-8 dashboard-title">Your Collection</h2>
         <div id="dashboard" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
@@ -74,8 +88,20 @@
         </div>
     </div>
 
+    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-1/3 text-center relative">
+            <div class="checkmark-circle">
+                <div class="checkmark">✔</div>
+            </div>
+            <h2 id="modal-title" class="text-2xl font-bold text-gray-800 mt-4">Success</h2>
+            <p id="modal-body" class="text-gray-600 mt-2">Item removed successfully!</p>
+            <button id="close-modal" class="mt-6 px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 font-medium">
+                Got it
+            </button>
+        </div>
+    </div>
+
     <script>
-        // Firebase Initialization
         const firebaseConfig = {
             apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
             authDomain: "cangoldinvestment.firebaseapp.com",
@@ -164,15 +190,26 @@
             const userId = "demo_user";
             const itemRef = database.ref(`users/${userId}/collection/${itemId}`);
 
-            if (confirm("Are you sure you want to remove this item?")) {
-                itemRef.remove()
-                    .then(() => {
-                        alert("Item removed successfully!");
-                    })
-                    .catch((error) => {
-                        console.error("Error removing item:", error);
-                    });
-            }
+            itemRef.remove()
+                .then(() => {
+                    showModal("Success", "Item removed successfully!");
+                })
+                .catch((error) => {
+                    showModal("Error", "Failed to remove item. Try again.");
+                    console.error("Error removing item:", error);
+                });
+        }
+
+        function showModal(title, body) {
+            const modal = document.getElementById("modal");
+            document.getElementById("modal-title").textContent = title;
+            document.getElementById("modal-body").textContent = body;
+            modal.classList.remove("hidden");
+
+            const closeModal = () => modal.classList.add("hidden");
+            document.getElementById("close-modal").addEventListener("click", closeModal);
+            modal.addEventListener("click", (e) => e.target === modal && closeModal());
+            document.addEventListener("keydown", (e) => e.key === "Escape" && closeModal());
         }
 
         async function init() {
