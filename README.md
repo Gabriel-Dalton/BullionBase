@@ -21,17 +21,6 @@ BullionBase simplifies your gold and silver investment tracking by fetching real
 
 ---
 
-## Installation
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/gabriel-dalton/BullionBase.git
-   cd BullionBase
-   ```
-2. Open `index.html` in your preferred web browser to view the dashboard.
-3. Ensure you have internet access for live API data fetching and Firebase integration.
-
----
-
 ## Usage
 1. **Portfolio Summary**:
    - View your current portfolio’s **Sell Value** (estimated price if sold) and **Buy Value** (cost to replace your portfolio).
