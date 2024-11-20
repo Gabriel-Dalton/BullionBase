@@ -28,9 +28,18 @@
         .btn-primary {
             background-color: #d4af37;
             color: #fff;
+            font-weight: bold;
         }
         .btn-primary:hover {
-            background-color: #c79a30; 
+            background-color: #c79a30;
+        }
+        .button-primary {
+            background-color: #d4af37;
+            color: #fff;
+            font-weight: bold;
+        }
+        .button-primary:hover {
+            background-color: #c79a30;
         }
     </style>
 </head>
@@ -44,11 +53,13 @@
             </div>
         </div>
     </nav>
+
+    <!-- Add to Collection Section -->
     <div class="container mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
         <h1 class="text-4xl font-extrabold text-center mb-10 page-title">Add to Collection</h1>
         <div id="price-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         <div class="text-center mt-8">
-            <a href="index.html" class="btn-primary py-3 px-6 rounded shadow">
+            <a href="index.html" class="button-primary px-6 py-3 rounded-md shadow-md hover:bg-yellow-600 font-semibold">
                 View Collection
             </a>
         </div>
@@ -124,10 +135,19 @@
 
             newItemRef.set(itemData)
                 .then(() => {
-                    alert("Item added to collection!");
+                    const modal = document.createElement('div');
+                    modal.classList.add('fixed', 'z-50', 'inset-0', 'flex', 'items-center', 'justify-center', 'bg-black', 'bg-opacity-50');
+                    modal.innerHTML = `
+                        <div class="bg-white p-5 rounded-lg shadow-lg text-center">
+                            <h2 class="text-lg font-bold text-gray-800">Success</h2>
+                            <p class="text-gray-600 mt-2">${itemName} added successfully!</p>
+                            <button class="mt-4 btn-primary py-2 px-4 rounded" onclick="this.parentElement.parentElement.remove()">Close</button>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
                 })
                 .catch((error) => {
-                    console.error("Error adding item to collection:", error);
+                    console.error('Error adding item to collection:', error);
                 });
         }
 
