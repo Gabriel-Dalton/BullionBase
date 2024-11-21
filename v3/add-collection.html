@@ -155,26 +155,20 @@
         }
     
         function filterPrices(data) {
-            if (!Array.isArray(data)) {
-                console.error("Invalid data passed to filterPrices:", data); // Debugging
-                return [];
-            }
-    
-            const metalType = document.getElementById('metal-type').value;
-            const weightFilter = document.getElementById('weight-filter').value;
-    
-            return data.filter(item => {
-                console.log("Filtering item:", item); // Debugging
-    
-                const matchesMetal = !metalType || (item.metal_type && item.metal_type.toLowerCase() === metalType.toLowerCase());
-                const matchesWeight = !weightFilter || (item.weight && parseFloat(item.weight) === parseFloat(weightFilter));
-                return matchesMetal && matchesWeight;
-            });
-        }
+    const metalType = document.getElementById('metal-type').value.toLowerCase();
+    const weightFilter = parseFloat(document.getElementById('weight-filter').value) || null;
+
+    return data.filter(item => {
+        const matchesMetal = !metalType || (item.metal_type && item.metal_type.toLowerCase() === metalType);
+        const matchesWeight = !weightFilter || (item.weight && parseFloat(item.weight).toFixed(1) === weightFilter.toFixed(1));
+        return matchesMetal && matchesWeight;
+    });
+}
+
     
         function displayPrices(data) {
             if (!data || !Array.isArray(data)) {
-                console.error("Invalid data passed to displayPrices:", data); // Debugging
+                console.error("Invalid data passed to displayPrices:", data);
                 document.getElementById('price-display').innerHTML = '<p class="text-center text-gray-600">No data available to display.</p>';
                 return;
             }
@@ -250,7 +244,7 @@
     
             document.getElementById('metal-type').addEventListener('change', () => displayPrices(data));
             document.getElementById('weight-filter').addEventListener('change', () => displayPrices(data));
-            displayPrices(data); // Initial display
+            displayPrices(data);
         }
     
         window.onload = init;
