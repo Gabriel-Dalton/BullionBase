@@ -180,46 +180,70 @@
             document.getElementById("buy-price").textContent = `$${totalBuyValue.toFixed(2)}`;
         }
 
-        function displayUserCollection(collection) {
-            const dashboard = document.getElementById("dashboard");
-            dashboard.innerHTML = "";
+       function displayUserCollection(collection) {
+    const dashboard = document.getElementById("dashboard");
+    dashboard.innerHTML = "";
 
-            for (const key in collection) {
-                const item = collection[key];
+    const consolidatedItems = {};
 
-                const itemElement = document.createElement("div");
-                itemElement.classList.add("card", "p-4", "rounded-lg", "shadow", "flex", "justify-between", "items-center");
+    // Consolidate items based on their name
+    for (const key in collection) {
+        const item = collection[key];
+        if (consolidatedItems[item.name]) {
+            consolidatedItems[item.name].quantity += item.quantity;
+        } else {
+            consolidatedItems[item.name] = {
+                name: item.name,
+                quantity: item.quantity,
+            };
+        }
+    }
 
-                itemElement.innerHTML = `
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-700">${item.name}</h3>
-                        <p class="text-sm text-gray-500">Quantity: ${item.quantity}</p>
-                        <p class="text-sm text-gray-500">Sell Value: $${(item.quantity * vbcePrices[item.name]?.buy || 0).toFixed(2)}</p>
-                        <p class="text-sm text-gray-500">Buy Value: $${(item.quantity * vbcePrices[item.name]?.sell || 0).toFixed(2)}</p>
-                    </div>
-                    <button onclick="removeItem('${key}')" class="text-red-500 hover:text-red-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                `;
-                dashboard.appendChild(itemElement);
+    // Display each consolidated item
+    for (const name in consolidatedItems) {
+        const item = consolidatedItems[name];
+        const vbceItem = vbcePrices[item.name];
+
+        const itemElement = document.createElement("div");
+        itemElement.classList.add("card", "p-4", "rounded-lg", "shadow", "flex", "justify-between", "items-center");
+
+        itemElement.innerHTML = `
+            <div>
+                <h3 class="text-lg font-semibold text-gray-700">${item.name}</h3>
+                <p class="text-sm text-gray-500">Quantity: ${item.quantity}</p>
+                <p class="text-sm text-gray-500">Sell Value: $${(item.quantity * vbceItem?.buy || 0).toFixed(2)}</p>
+                <p class="text-sm text-gray-500">Buy Value: $${(item.quantity * vbceItem?.sell || 0).toFixed(2)}</p>
+            </div>
+            <button onclick="removeItem('${item.name}')" class="text-red-500 hover:text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        `;
+        dashboard.appendChild(itemElement);
+    }
+}
+
+        function removeItem(itemName) {
+    const userId = "demo_user";
+    const collectionRef = database.ref(`users/${userId}/collection`);
+
+    collectionRef.once("value", (snapshot) => {
+        const data = snapshot.val();
+        for (const key in data) {
+            if (data[key].name === itemName) {
+                database.ref(`users/${userId}/collection/${key}`).remove()
+                    .then(() => {
+                        showModal("Success", `${itemName} removed successfully!`);
+                    })
+                    .catch((error) => {
+                        showModal("Error", "Failed to remove item. Try again.");
+                        console.error("Error removing item:", error);
+                    });
             }
         }
-
-        function removeItem(itemId) {
-            const userId = "demo_user";
-            const itemRef = database.ref(`users/${userId}/collection/${itemId}`);
-
-            itemRef.remove()
-                .then(() => {
-                    showModal("Success", "Item removed successfully!");
-                })
-                .catch((error) => {
-                    showModal("Error", "Failed to remove item. Try again.");
-                    console.error("Error removing item:", error);
-                });
-        }
+    });
+}
 
         function showModal(title, body) {
             const modal = document.getElementById("modal");
