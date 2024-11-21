@@ -82,6 +82,27 @@
 
     <div class="container mx-auto my-10 p-6 bg-white shadow-lg rounded-lg">
         <h1 class="text-4xl font-extrabold text-center mb-10 page-title">Add to Collection</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+            <div>
+                <label for="metal-type" class="block text-gray-700 font-semibold mb-2">Metal Type</label>
+                <select id="metal-type" class="block w-full p-2 border rounded shadow">
+                    <option value="">All</option>
+                    <option value="gold">Gold</option>
+                    <option value="silver">Silver</option>
+                    <option value="platinum">Platinum</option>
+                </select>
+            </div>
+            <div>
+                <label for="weight-filter" class="block text-gray-700 font-semibold mb-2">Weight</label>
+                <select id="weight-filter" class="block w-full p-2 border rounded shadow">
+                    <option value="">All</option>
+                    <option value="31.1">1 oz</option>
+                    <option value="155.5">5 oz</option>
+                    <option value="311">10 oz</option>
+                    <option value="1000">1 kilo</option>
+                </select>
+            </div>
+        </div>
         <div id="price-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         <div class="text-center mt-8">
             <a href="index.html" class="btn-primary px-6 py-3 rounded-md shadow-md font-semibold">
@@ -102,9 +123,8 @@
             </button>
         </div>
     </div>
-
     <script>
-        const firebaseConfig = {
+          const firebaseConfig = {
             apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
             authDomain: "cangoldinvestment.firebaseapp.com",
             databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
@@ -113,37 +133,66 @@
             messagingSenderId: "1052369951680",
             appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
         };
-
+    
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
+    
         async function fetchApiKey() {
             return 'bc9959c3faab76071c6fb348c509f7f32';
         }
-
+    
         async function fetchPrices(apiKey) {
             try {
                 const response = await fetch(`https://rs1.smallfactory.dev/api/v1/metals?apikey=${apiKey}`);
+                if (!response.ok) throw new Error("Failed to fetch data from API");
                 const data = await response.json();
-                displayPrices(data);
+                console.log("API Response:", data); // Debugging
+                return data; // Return the data for further use
             } catch (error) {
                 console.error('Error fetching prices:', error);
+                return []; // Return an empty array to prevent further issues
             }
         }
-
+    
+        function filterPrices(data) {
+            if (!Array.isArray(data)) {
+                console.error("Invalid data passed to filterPrices:", data); // Debugging
+                return [];
+            }
+    
+            const metalType = document.getElementById('metal-type').value;
+            const weightFilter = document.getElementById('weight-filter').value;
+    
+            return data.filter(item => {
+                console.log("Filtering item:", item); // Debugging
+    
+                const matchesMetal = !metalType || (item.metal_type && item.metal_type.toLowerCase() === metalType.toLowerCase());
+                const matchesWeight = !weightFilter || (item.weight && parseFloat(item.weight) === parseFloat(weightFilter));
+                return matchesMetal && matchesWeight;
+            });
+        }
+    
         function displayPrices(data) {
+            if (!data || !Array.isArray(data)) {
+                console.error("Invalid data passed to displayPrices:", data); // Debugging
+                document.getElementById('price-display').innerHTML = '<p class="text-center text-gray-600">No data available to display.</p>';
+                return;
+            }
+    
             const priceDisplay = document.getElementById('price-display');
             priceDisplay.innerHTML = '';
-
-            if (data && Array.isArray(data)) {
-                data.forEach(priceInfo => {
+    
+            const filteredData = filterPrices(data);
+    
+            if (filteredData.length > 0) {
+                filteredData.forEach(priceInfo => {
                     const priceElement = document.createElement('div');
                     priceElement.classList.add('card', 'rounded-lg', 'shadow-lg', 'p-5', 'flex', 'flex-col', 'items-center');
-
-                    const imageUrl = priceInfo.image[0]?.full || '';
-                    const itemName = priceInfo.name || 'Unknown item';
+    
+                    const imageUrl = priceInfo.image?.[0]?.full || '/placeholder-image.jpg';
+                    const itemName = priceInfo.name || 'Unknown Item';
                     const priceBuy = priceInfo.buy || 0;
-
+    
                     priceElement.innerHTML = `
                         <img class="w-40 h-40 object-cover rounded-full mb-5" src="${imageUrl}" alt="${itemName}">
                         <h2 class="text-xl font-semibold text-gray-800">${itemName}</h2>
@@ -156,21 +205,23 @@
                     `;
                     priceDisplay.appendChild(priceElement);
                 });
+            } else {
+                priceDisplay.innerHTML = '<p class="text-center text-gray-600">No items match your criteria.</p>';
             }
         }
-
+    
         function addToCollection(itemName, quantity, currentPrice) {
             const userId = "demo_user";
             const collectionRef = database.ref(`users/${userId}/collection`);
             const newItemRef = collectionRef.push();
-
+    
             const itemData = {
                 name: itemName,
                 quantity: parseFloat(quantity),
                 price: parseFloat(currentPrice),
                 totalValue: parseFloat(quantity) * parseFloat(currentPrice),
             };
-
+    
             newItemRef.set(itemData)
                 .then(() => {
                     showModal("Success", `${itemName} added successfully!`);
@@ -180,25 +231,30 @@
                     console.error('Error adding item to collection:', error);
                 });
         }
-
+    
         function showModal(title, body) {
             const modal = document.getElementById("modal");
             document.getElementById("modal-title").textContent = title;
             document.getElementById("modal-body").textContent = body;
             modal.classList.remove("hidden");
-
+    
             const closeModal = () => modal.classList.add("hidden");
             document.getElementById("close-modal").addEventListener("click", closeModal);
             modal.addEventListener("click", (e) => e.target === modal && closeModal());
             document.addEventListener("keydown", (e) => e.key === "Escape" && closeModal());
         }
-
+    
         async function init() {
             const apiKey = await fetchApiKey();
-            await fetchPrices(apiKey);
+            const data = await fetchPrices(apiKey);
+    
+            document.getElementById('metal-type').addEventListener('change', () => displayPrices(data));
+            document.getElementById('weight-filter').addEventListener('change', () => displayPrices(data));
+            displayPrices(data); // Initial display
         }
-
+    
         window.onload = init;
     </script>
+    
 </body>
 </html>
