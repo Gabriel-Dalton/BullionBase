@@ -208,18 +208,48 @@
     }
 
     function addToCollection(itemName, quantity, currentPrice) {
-        const userId = "demo_user";
-        const collectionRef = database.ref(`users/${userId}/collection`);
-        const newItemRef = collectionRef.push();
+    const userId = "demo_user";
+    const collectionRef = database.ref(`users/${userId}/collection`);
 
-        const itemData = {
-            name: itemName,
-            quantity: parseFloat(quantity),
-            price: parseFloat(currentPrice),
-            totalValue: parseFloat(quantity) * parseFloat(currentPrice),
-        };
+    collectionRef.once("value", (snapshot) => {
+        const data = snapshot.val();
+        let existingKey = null;
 
-        newItemRef.set(itemData)
+        // Check if an item with the same name exists
+        for (const key in data) {
+            if (data[key].name === itemName) {
+                existingKey = key;
+                break;
+            }
+        }
+
+        if (existingKey) {
+            // Update the existing item's quantity and totalValue
+            const updatedQuantity = parseFloat(data[existingKey].quantity) + parseFloat(quantity);
+            const updatedTotalValue = updatedQuantity * parseFloat(currentPrice);
+
+            database.ref(`users/${userId}/collection/${existingKey}`).update({
+                quantity: updatedQuantity,
+                totalValue: updatedTotalValue,
+            })
+            .then(() => {
+                showModal("Success", `${itemName} updated successfully!`);
+            })
+            .catch((error) => {
+                showModal("Error", "Failed to update item. Try again.");
+                console.error('Error updating item in collection:', error);
+            });
+        } else {
+            // Create a new item if it doesn't exist
+            const newItemRef = collectionRef.push();
+            const itemData = {
+                name: itemName,
+                quantity: parseFloat(quantity),
+                price: parseFloat(currentPrice),
+                totalValue: parseFloat(quantity) * parseFloat(currentPrice),
+            };
+
+            newItemRef.set(itemData)
             .then(() => {
                 showModal("Success", `${itemName} added successfully!`);
             })
@@ -227,9 +257,11 @@
                 showModal("Error", "Failed to add item. Try again.");
                 console.error('Error adding item to collection:', error);
             });
-    }
+        }
+    });
+}
 
-    function showModal(title, body) {
+ function showModal(title, body) {
         const modal = document.getElementById("modal");
         document.getElementById("modal-title").textContent = title;
         document.getElementById("modal-body").textContent = body;
