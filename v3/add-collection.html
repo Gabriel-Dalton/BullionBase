@@ -146,11 +146,11 @@
             const response = await fetch(`https://rs1.smallfactory.dev/api/v1/metals?apikey=${apiKey}`);
             if (!response.ok) throw new Error("Failed to fetch data from API");
             const data = await response.json();
-            console.log("API Response:", data); // Debugging
-            return data; // Return the data for further use
+            console.log("API Response:", data); 
+            return data; 
         } catch (error) {
             console.error('Error fetching prices:', error);
-            return []; // Return an empty array to prevent further issues
+            return []; 
         }
     }
 
@@ -159,11 +159,9 @@
         const weightFilter = parseFloat(document.getElementById('weight-filter').value) || null;
 
         return data.filter(item => {
-            // Parse weight as a number
             const weightString = item.weight || "";
-            const parsedWeight = parseFloat(weightString.replace(/[^0-9.]/g, "")); // Remove non-numeric characters
+            const parsedWeight = parseFloat(weightString.replace(/[^0-9.]/g, "")); 
 
-            // Filter conditions
             const matchesMetal = !metalType || (item.metal_type && item.metal_type.toLowerCase() === metalType);
             const matchesWeight = !weightFilter || parsedWeight === weightFilter;
 
