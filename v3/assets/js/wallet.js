@@ -3,9 +3,11 @@ const walletNameInput = document.getElementById("wallet-name-input");
 const createWalletConfirm = document.getElementById("create-wallet-confirm");
 const cancelWallet = document.getElementById("cancel-wallet");
 const walletSelector = document.getElementById("wallet-selector");
+const errorMessage = document.getElementById("error-message");
 
 function createWallet() {
     walletNameInput.value = "";
+    errorMessage.classList.add("hidden");
     walletModal.classList.remove("hidden");
 }
 
@@ -17,7 +19,8 @@ createWalletConfirm.addEventListener("click", () => {
     const walletName = walletNameInput.value.trim();
 
     if (!walletName) {
-        alert("Please enter a wallet name.");
+        errorMessage.textContent = "Please enter a wallet name.";
+        errorMessage.classList.remove("hidden");
         return;
     }
 
@@ -27,13 +30,13 @@ createWalletConfirm.addEventListener("click", () => {
     const newWalletRef = walletsRef.push();
     newWalletRef.set({ name: walletName, collection: {} }, (error) => {
         if (error) {
-            alert("Failed to create wallet.");
+            errorMessage.textContent = "Failed to create wallet. Please try again.";
+            errorMessage.classList.remove("hidden");
         } else {
             checkWallets();
+            closeWalletModal();
         }
     });
-
-    closeWalletModal();
 });
 
 walletNameInput.addEventListener("keydown", (e) => {
