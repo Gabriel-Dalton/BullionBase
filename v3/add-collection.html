@@ -283,6 +283,67 @@
 
     window.onload = init;
 </script>
+<script>function addToCollection(itemName, quantity, currentPrice) {
+    const userId = "demo_user";
+    const currentWallet = localStorage.getItem("currentWallet"); // Retrieve the active wallet from localStorage
+
+    if (!currentWallet) {
+        showModal("Error", "No wallet selected. Please go back and select a wallet first.");
+        return;
+    }
+
+    const collectionRef = database.ref(`users/${userId}/wallets/${currentWallet}/collection`);
+
+    collectionRef.once("value", (snapshot) => {
+        const data = snapshot.val() || {};
+        let existingKey = null;
+
+        // Check if an item with the same name exists
+        for (const key in data) {
+            if (data[key].name === itemName) {
+                existingKey = key;
+                break;
+            }
+        }
+
+        if (existingKey) {
+            // Update the existing item's quantity and totalValue
+            const updatedQuantity = parseFloat(data[existingKey].quantity) + parseFloat(quantity);
+            const updatedTotalValue = updatedQuantity * parseFloat(currentPrice);
+
+            database.ref(`users/${userId}/wallets/${currentWallet}/collection/${existingKey}`).update({
+                quantity: updatedQuantity,
+                totalValue: updatedTotalValue,
+            })
+            .then(() => {
+                showModal("Success", `${itemName} updated successfully!`);
+            })
+            .catch((error) => {
+                showModal("Error", "Failed to update item. Try again.");
+                console.error('Error updating item in collection:', error);
+            });
+        } else {
+            // Create a new item if it doesn't exist
+            const newItemRef = collectionRef.push();
+            const itemData = {
+                name: itemName,
+                quantity: parseFloat(quantity),
+                price: parseFloat(currentPrice),
+                totalValue: parseFloat(quantity) * parseFloat(currentPrice),
+            };
+
+            newItemRef.set(itemData)
+            .then(() => {
+                showModal("Success", `${itemName} added successfully!`);
+            })
+            .catch((error) => {
+                showModal("Error", "Failed to add item. Try again.");
+                console.error('Error adding item to collection:', error);
+            });
+        }
+    });
+}
+</script>
     
 </body>
 </html>
