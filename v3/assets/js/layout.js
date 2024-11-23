@@ -2,7 +2,6 @@ const gridViewBtn = document.getElementById('grid-view-btn');
     const listViewBtn = document.getElementById('list-view-btn');
     const portfolioSummary = document.getElementById('portfolio-summary');
 
-    // Load the user's preference from localStorage
     const savedLayout = localStorage.getItem('portfolioLayout') || 'grid';
     applyLayout(savedLayout);
 
