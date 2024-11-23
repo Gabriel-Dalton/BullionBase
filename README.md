@@ -48,6 +48,6 @@ BullionBase simplifies your gold and silver investment tracking by fetching real
 ## Future Enhancements
 - **User Authentication**: Add user login to save portfolios for multiple users.
 - **Export Portfolio**: Allow users to export their portfolio data as a CSV or PDF.
-- **More Metals**: Expand support to track other precious metals like palladium.
+- **More Metals**: Expand support to track other precious metals like palladium (whatever vbce offers).
 - **Advanced Analytics**: Provide trends and historical data for better decision-making.
 - **Sharing Functionality**: Share wallet summaries with others for collaborative investment tracking.
