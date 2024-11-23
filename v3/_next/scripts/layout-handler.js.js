@@ -1,30 +1,7 @@
-function fetchWallets() {
-    const userId = "demo_user";
-    const walletsRef = database.ref(`users/${userId}/wallets`);
-    walletsRef.on("value", (snapshot) => {
-        const wallets = snapshot.val() || {};
-        const walletSelector = document.getElementById("wallet-selector");
-        walletSelector.innerHTML = Object.keys(wallets)
-            .map((key) => `<option value="${key}">${wallets[key].name}</option>`)
-            .join("");
-        walletSelector.classList.toggle("hidden", Object.keys(wallets).length === 0);
-    });
-}
-
-function createWallet() {
-    document.getElementById("wallet-modal").classList.remove("hidden");
-}
-
-document.getElementById("create-wallet-confirm").addEventListener("click", () => {
-    const walletName = document.getElementById("wallet-name-input").value.trim();
-    if (walletName) {
-        const userId = "demo_user";
-        const newWalletRef = database.ref(`users/${userId}/wallets`).push();
-        newWalletRef.set({ name: walletName, collection: {} });
-        document.getElementById("wallet-modal").classList.add("hidden");
-    }
+const portfolioSummary = document.getElementById("portfolio-summary");
+document.getElementById("grid-view-btn").addEventListener("click", () => {
+    portfolioSummary.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6";
 });
-
-document.getElementById("cancel-wallet").addEventListener("click", () => {
-    document.getElementById("wallet-modal").classList.add("hidden");
+document.getElementById("list-view-btn").addEventListener("click", () => {
+    portfolioSummary.className = "grid grid-cols-1 gap-6";
 });
