@@ -51,7 +51,7 @@
     </div>
 
     <script>
-      const firebaseConfig = {
+     const firebaseConfig = {
         apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
         authDomain: "cangoldinvestment.firebaseapp.com",
         databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
@@ -71,35 +71,41 @@
         const purchaseDateInput = document.getElementById('purchase-date');
 
         let currentItemKey = null;
+        let currentWalletKey = null; // Tracks the wallet in which the item exists
 
         function showCollection() {
             const userId = "demo_user";
-            const collectionRef = database.ref(`users/${userId}/collection`);
+            const walletsRef = database.ref(`users/${userId}/wallets`);
 
-            collectionRef.once("value", (snapshot) => {
-                const data = snapshot.val() || {};
-                collectionList.innerHTML = '';
+            walletsRef.once("value", (snapshot) => {
+                const wallets = snapshot.val() || {};
+                collectionList.innerHTML = ''; // Clear existing content
 
-                Object.keys(data).forEach(key => {
-                    const item = data[key];
-                    const profitOrLoss = calculateProfitOrLoss(item);
+                Object.keys(wallets).forEach(walletKey => {
+                    const wallet = wallets[walletKey];
+                    const collection = wallet.collection || {};
 
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'card rounded-lg shadow-lg p-6 text-center';
+                    Object.keys(collection).forEach(itemKey => {
+                        const item = collection[itemKey];
+                        const profitOrLoss = calculateProfitOrLoss(item);
 
-                    itemElement.innerHTML = `
-                        <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
-                        <p class="text-gray-600 mt-2">Current Price: <span class="font-bold">${item.price}</span></p>
-                        <p class="text-gray-600">Quantity: <span class="font-bold">${item.quantity}</span></p>
-                        <p class="text-gray-600">Purchase Price: <span class="font-bold">${item.purchasePrice || 'N/A'}</span></p>
-                        <p class="text-gray-600">Purchase Date: <span class="font-bold">${item.purchaseDate || 'N/A'}</span></p>
-                        <p class="mt-4 ${profitOrLoss > 0 ? 'profit' : 'loss'}">
-                            ${profitOrLoss > 0 ? 'Profit' : 'Loss'}: <span>${profitOrLoss.toFixed(2)}%</span>
-                        </p>
-                        <button onclick="openBuyingModal('${key}', '${item.name}')" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">Add Buying Info</button>
-                    `;
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'card rounded-lg shadow-lg p-6 text-center';
 
-                    collectionList.appendChild(itemElement);
+                        itemElement.innerHTML = `
+                            <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
+                            <p class="text-gray-600 mt-2">Current Price: <span class="font-bold">${item.price}</span></p>
+                            <p class="text-gray-600">Quantity: <span class="font-bold">${item.quantity}</span></p>
+                            <p class="text-gray-600">Purchase Price: <span class="font-bold">${item.purchasePrice || 'N/A'}</span></p>
+                            <p class="text-gray-600">Purchase Date: <span class="font-bold">${item.purchaseDate || 'N/A'}</span></p>
+                            <p class="mt-4 ${profitOrLoss > 0 ? 'profit' : 'loss'}">
+                                ${profitOrLoss > 0 ? 'Profit' : 'Loss'}: <span>${profitOrLoss.toFixed(2)}%</span>
+                            </p>
+                            <button onclick="openBuyingModal('${walletKey}', '${itemKey}', '${item.name}')" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">Add Buying Info</button>
+                        `;
+
+                        collectionList.appendChild(itemElement);
+                    });
                 });
             });
         }
@@ -111,8 +117,9 @@
             return ((currentPrice - purchasePrice) / purchasePrice) * 100;
         }
 
-        function openBuyingModal(itemKey, itemName) {
+        function openBuyingModal(walletKey, itemKey, itemName) {
             currentItemKey = itemKey;
+            currentWalletKey = walletKey;
             itemNameField.textContent = `Item: ${itemName}`;
             purchasePriceInput.value = '';
             purchaseDateInput.value = '';
@@ -133,7 +140,7 @@
             }
 
             const userId = "demo_user";
-            const itemRef = database.ref(`users/${userId}/collection/${currentItemKey}`);
+            const itemRef = database.ref(`users/${userId}/wallets/${currentWalletKey}/collection/${currentItemKey}`);
 
             itemRef.update({
                 purchasePrice: purchasePrice,
@@ -150,6 +157,7 @@
 
         document.getElementById('cancel-buying-info').addEventListener('click', closeBuyingModal);
 
+        // Initialize the collection view
         showCollection();
     </script>
 </body>
