@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BullionBase - Collection Management</title>
+    <title>BullionBase - Manage Collection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
-    <link rel="stylesheet" type="text/css" href="/v3/assets/css/main.css">
     <style>
-        .text-profit { color: #22c55e; } /* Green for profit */
-        .text-loss { color: #ef4444; } /* Red for loss */
+        .profit { color: #22c55e; } /* Green for profit */
+        .loss { color: #ef4444; } /* Red for loss */
     </style>
 </head>
 <body>
     <nav class="bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-lg">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold tracking-wide text-yellow-400">
-                BullionBase
-            </h1>
+            <h1 class="text-2xl font-extrabold tracking-wide text-yellow-400">BullionBase</h1>
             <div class="hidden md:flex space-x-8">
                 <a href="index.html" class="hover:text-yellow-400 font-semibold transition duration-300">Dashboard</a>
                 <a href="add-collection.html" class="hover:text-yellow-400 font-semibold transition duration-300">Add to Collection</a>
@@ -26,7 +23,7 @@
         </div>
     </nav>
 
-    <div class="container mx-auto my-8 px-4">
+    <div class="container mx-auto my-10 px-4">
         <h1 class="text-4xl font-extrabold text-center mb-10">Manage Your Collection</h1>
 
         <!-- Collection Display -->
@@ -35,42 +32,43 @@
         </div>
     </div>
 
-    <!-- Modal for Adding Purchase Info -->
-    <div id="purchase-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-gray-800 bg-opacity-50">
+    <!-- Modal for Adding Buying Info -->
+    <div id="buying-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-gray-800 bg-opacity-50">
         <div class="modal-container bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-            <h2 class="modal-title text-2xl font-bold mb-4">Add Purchase Info</h2>
+            <h2 class="text-2xl font-bold mb-4">Add Buying Info</h2>
             <div>
                 <p id="item-name" class="text-lg font-semibold mb-4"></p>
-                <label for="purchase-price" class="block text-gray-700 font-medium mb-2">Purchase Price (per unit):</label>
-                <input id="purchase-price" type="number" step="0.01" placeholder="Enter price" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4" />
-                <label for="purchase-quantity" class="block text-gray-700 font-medium mb-2">Quantity Purchased:</label>
-                <input id="purchase-quantity" type="number" placeholder="Enter quantity" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4" />
+                <label for="purchase-price" class="block text-gray-700 font-medium mb-2">Purchase Price:</label>
+                <input id="purchase-price" type="number" step="0.01" placeholder="Enter price per unit" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4">
+                <label for="purchase-date" class="block text-gray-700 font-medium mb-2">Purchase Date:</label>
+                <input id="purchase-date" type="date" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4">
             </div>
             <div class="flex justify-center space-x-4 mt-4">
-                <button id="save-purchase" class="bg-yellow-400 text-gray-900 px-5 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300 shadow-lg">Save</button>
-                <button id="cancel-purchase" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-md font-bold hover:bg-gray-400 transition duration-300 shadow-lg">Cancel</button>
+                <button id="save-buying-info" class="bg-yellow-400 text-gray-900 px-5 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300 shadow-lg">Save</button>
+                <button id="cancel-buying-info" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-md font-bold hover:bg-gray-400 transition duration-300 shadow-lg">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
-        authDomain: "cangoldinvestment.firebaseapp.com",
-        databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
-        projectId: "cangoldinvestment",
-        storageBucket: "cangoldinvestment.appspot.com",
-        messagingSenderId: "1052369951680",
-        appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+            authDomain: "cangoldinvestment.firebaseapp.com",
+            databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
+            projectId: "cangoldinvestment",
+            storageBucket: "cangoldinvestment.appspot.com",
+            messagingSenderId: "1052369951680",
+            appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
+        };
+
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
         const collectionList = document.getElementById('collection-list');
-        const purchaseModal = document.getElementById('purchase-modal');
+        const buyingModal = document.getElementById('buying-modal');
         const itemNameField = document.getElementById('item-name');
         const purchasePriceInput = document.getElementById('purchase-price');
-        const purchaseQuantityInput = document.getElementById('purchase-quantity');
+        const purchaseDateInput = document.getElementById('purchase-date');
 
         let currentItemKey = null;
 
@@ -93,10 +91,12 @@
                         <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
                         <p class="text-gray-600 mt-2">Current Price: <span class="font-bold">${item.price}</span></p>
                         <p class="text-gray-600">Quantity: <span class="font-bold">${item.quantity}</span></p>
-                        <p class="mt-4 ${profitOrLoss > 0 ? 'text-profit' : 'text-loss'}">
-                            ${profitOrLoss > 0 ? 'Profit' : 'Loss'}: <span>${profitOrLoss.toFixed(2)}</span>
+                        <p class="text-gray-600">Purchase Price: <span class="font-bold">${item.purchasePrice || 'N/A'}</span></p>
+                        <p class="text-gray-600">Purchase Date: <span class="font-bold">${item.purchaseDate || 'N/A'}</span></p>
+                        <p class="mt-4 ${profitOrLoss > 0 ? 'profit' : 'loss'}">
+                            ${profitOrLoss > 0 ? 'Profit' : 'Loss'}: <span>${profitOrLoss.toFixed(2)}%</span>
                         </p>
-                        <button onclick="openPurchaseModal('${key}', '${item.name}')" class="btn-primary mt-3 py-2 px-4 rounded shadow">Add Purchase Info</button>
+                        <button onclick="openBuyingModal('${key}', '${item.name}')" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">Add Buying Info</button>
                     `;
 
                     collectionList.appendChild(itemElement);
@@ -105,29 +105,29 @@
         }
 
         function calculateProfitOrLoss(item) {
-            if (!item.purchasePrice || !item.quantity) return 0;
-            const totalPurchaseValue = item.purchasePrice * item.quantity;
-            const totalCurrentValue = item.price * item.quantity;
-            return totalCurrentValue - totalPurchaseValue;
+            if (!item.purchasePrice) return 0;
+            const currentPrice = parseFloat(item.price) || 0;
+            const purchasePrice = parseFloat(item.purchasePrice) || 0;
+            return ((currentPrice - purchasePrice) / purchasePrice) * 100;
         }
 
-        function openPurchaseModal(itemKey, itemName) {
+        function openBuyingModal(itemKey, itemName) {
             currentItemKey = itemKey;
             itemNameField.textContent = `Item: ${itemName}`;
             purchasePriceInput.value = '';
-            purchaseQuantityInput.value = '';
-            purchaseModal.classList.remove('hidden');
+            purchaseDateInput.value = '';
+            buyingModal.classList.remove('hidden');
         }
 
-        function closePurchaseModal() {
-            purchaseModal.classList.add('hidden');
+        function closeBuyingModal() {
+            buyingModal.classList.add('hidden');
         }
 
-        document.getElementById('save-purchase').addEventListener('click', () => {
+        document.getElementById('save-buying-info').addEventListener('click', () => {
             const purchasePrice = parseFloat(purchasePriceInput.value);
-            const purchaseQuantity = parseInt(purchaseQuantityInput.value);
+            const purchaseDate = purchaseDateInput.value;
 
-            if (!purchasePrice || !purchaseQuantity) {
+            if (!purchasePrice || !purchaseDate) {
                 alert("Please enter valid purchase details.");
                 return;
             }
@@ -137,18 +137,18 @@
 
             itemRef.update({
                 purchasePrice: purchasePrice,
-                quantity: purchaseQuantity
+                purchaseDate: purchaseDate
             }, (error) => {
                 if (error) {
                     console.error("Error updating purchase info:", error);
                 } else {
-                    closePurchaseModal();
+                    closeBuyingModal();
                     showCollection();
                 }
             });
         });
 
-        document.getElementById('cancel-purchase').addEventListener('click', closePurchaseModal);
+        document.getElementById('cancel-buying-info').addEventListener('click', closeBuyingModal);
 
         // Initialize the collection view
         showCollection();
