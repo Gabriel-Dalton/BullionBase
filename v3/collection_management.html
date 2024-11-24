@@ -3,40 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BullionBase - Portfolio Dashboard</title>
+    <title>BullionBase - Collection Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
+    <link rel="stylesheet" type="text/css" href="/v3/assets/css/main.css">
     <style>
-        body {
-            background: linear-gradient(to right, #fafafa, #f5f5f5);
-            font-family: 'Inter', sans-serif;
-        }
-        .dashboard-title {
-            color: #B6862A;
-        }
-        .card {
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        .button-primary {
-            background-color: #B6862A;
-            color: white;
-        }
-        .button-primary:hover {
-            background-color: #A2751E;
-        }
-        .text-profit {
-            color: #22c55e;
-        }
-        .text-loss {
-            color: #ef4444;
-        }
+        .text-profit { color: #22c55e; } /* Green for profit */
+        .text-loss { color: #ef4444; } /* Red for loss */
     </style>
 </head>
 <body>
@@ -46,145 +20,138 @@
                 BullionBase
             </h1>
             <div class="hidden md:flex space-x-8">
-                <a href="index.html" class="hover:text-yellow-400 font-semibold transition duration-300">
-                    Dashboard
-                </a>
-                <a href="add-collection.html" class="hover:text-yellow-400 font-semibold transition duration-300">
-                    Add to Collection
-                </a>
+                <a href="index.html" class="hover:text-yellow-400 font-semibold transition duration-300">Dashboard</a>
+                <a href="add-collection.html" class="hover:text-yellow-400 font-semibold transition duration-300">Add to Collection</a>
             </div>
         </div>
     </nav>
 
     <div class="container mx-auto my-8 px-4">
-        <h1 class="text-4xl font-extrabold dashboard-title text-center mb-10">Portfolio Summary</h1>
-        <div id="portfolio-summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="card rounded-lg p-6 text-center">
-                <h2 class="text-lg font-semibold text-gray-700">Sell Value</h2>
-                <p id="sell-price" class="text-3xl font-bold text-gray-900 mt-2">$0.00</p>
-                <p class="text-sm text-gray-500">Value if sold to VBCE</p>
-            </div>
-            <div class="card rounded-lg p-6 text-center">
-                <h2 class="text-lg font-semibold text-gray-700">Buy Value</h2>
-                <p id="buy-price" class="text-3xl font-bold text-gray-900 mt-2">$0.00</p>
-                <p class="text-sm text-gray-500">Cost to replace portfolio</p>
-            </div>
-            <div class="card rounded-lg p-6 text-center">
-                <h2 class="text-lg font-semibold text-gray-700">Total Gold</h2>
-                <p id="total-gold" class="text-3xl font-bold text-gray-900 mt-2">0 oz</p>
-                <p class="text-sm text-gray-500">Total weight of gold in portfolio</p>
-            </div>
-            <div class="card rounded-lg p-6 text-center">
-                <h2 class="text-lg font-semibold text-gray-700">Total Silver</h2>
-                <p id="total-silver" class="text-3xl font-bold text-gray-900 mt-2">0 oz</p>
-                <p class="text-sm text-gray-500">Total weight of silver in portfolio</p>
-            </div>
-        </div>
+        <h1 class="text-4xl font-extrabold text-center mb-10">Manage Your Collection</h1>
 
-        <div id="summary" class="text-center mt-6">
-            <p id="total-profit-loss" class="text-lg font-semibold text-gray-700">Total Profit/Loss: $0.00</p>
+        <!-- Collection Display -->
+        <div id="collection-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Items will be dynamically added here -->
         </div>
-
-        <div id="dashboard" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-10"></div>
     </div>
 
-    <div class="container mx-auto my-8 px-4">
-        <h2 class="text-3xl font-bold text-center mb-8 dashboard-title">Add to Collection</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="add-collection">
-            <div class="card rounded-lg p-4 text-center">
-                <h2 class="text-lg font-semibold text-gray-700">Add New Item</h2>
-                <input
-                    id="item-name"
-                    type="text"
-                    placeholder="Item Name"
-                    class="w-full mt-2 px-4 py-2 border rounded-md"
-                />
-                <input
-                    id="quantity"
-                    type="number"
-                    placeholder="Quantity"
-                    class="w-full mt-2 px-4 py-2 border rounded-md"
-                />
-                <input
-                    id="purchase-price"
-                    type="number"
-                    placeholder="Purchase Price"
-                    class="w-full mt-2 px-4 py-2 border rounded-md"
-                />
-                <button
-                    onclick="addItem()"
-                    class="button-primary w-full mt-4 py-2 rounded-md"
-                >
-                    Add Item
-                </button>
+    <!-- Modal for Adding Purchase Info -->
+    <div id="purchase-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-gray-800 bg-opacity-50">
+        <div class="modal-container bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            <h2 class="modal-title text-2xl font-bold mb-4">Add Purchase Info</h2>
+            <div>
+                <p id="item-name" class="text-lg font-semibold mb-4"></p>
+                <label for="purchase-price" class="block text-gray-700 font-medium mb-2">Purchase Price (per unit):</label>
+                <input id="purchase-price" type="number" step="0.01" placeholder="Enter price" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4" />
+                <label for="purchase-quantity" class="block text-gray-700 font-medium mb-2">Quantity Purchased:</label>
+                <input id="purchase-quantity" type="number" placeholder="Enter quantity" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4" />
+            </div>
+            <div class="flex justify-center space-x-4 mt-4">
+                <button id="save-purchase" class="bg-yellow-400 text-gray-900 px-5 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300 shadow-lg">Save</button>
+                <button id="cancel-purchase" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-md font-bold hover:bg-gray-400 transition duration-300 shadow-lg">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Firebase initialization
-        const firebaseConfig = {
-            apiKey: "AIzaSyBXXXX",
-            authDomain: "yourproject.firebaseapp.com",
-            databaseURL: "https://yourproject.firebaseio.com",
-            projectId: "yourproject",
-            storageBucket: "yourproject.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcd1234"
-        };
+      const firebaseConfig = {
+        apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+        authDomain: "cangoldinvestment.firebaseapp.com",
+        databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
+        projectId: "cangoldinvestment",
+        storageBucket: "cangoldinvestment.appspot.com",
+        messagingSenderId: "1052369951680",
+        appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
+    };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Add item
-        function addItem() {
-            const itemName = document.getElementById("item-name").value;
-            const quantity = parseFloat(document.getElementById("quantity").value);
-            const purchasePrice = parseFloat(document.getElementById("purchase-price").value);
+        const collectionList = document.getElementById('collection-list');
+        const purchaseModal = document.getElementById('purchase-modal');
+        const itemNameField = document.getElementById('item-name');
+        const purchasePriceInput = document.getElementById('purchase-price');
+        const purchaseQuantityInput = document.getElementById('purchase-quantity');
 
-            if (!itemName || isNaN(quantity) || isNaN(purchasePrice)) {
-                alert("Please fill all fields correctly.");
+        let currentItemKey = null;
+
+        function showCollection() {
+            const userId = "demo_user"; // Replace with dynamic user logic
+            const collectionRef = database.ref(`users/${userId}/collection`);
+
+            collectionRef.once("value", (snapshot) => {
+                const data = snapshot.val() || {};
+                collectionList.innerHTML = ''; // Clear existing content
+
+                Object.keys(data).forEach(key => {
+                    const item = data[key];
+                    const profitOrLoss = calculateProfitOrLoss(item);
+
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'card rounded-lg shadow-lg p-6 text-center';
+
+                    itemElement.innerHTML = `
+                        <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
+                        <p class="text-gray-600 mt-2">Current Price: <span class="font-bold">${item.price}</span></p>
+                        <p class="text-gray-600">Quantity: <span class="font-bold">${item.quantity}</span></p>
+                        <p class="mt-4 ${profitOrLoss > 0 ? 'text-profit' : 'text-loss'}">
+                            ${profitOrLoss > 0 ? 'Profit' : 'Loss'}: <span>${profitOrLoss.toFixed(2)}</span>
+                        </p>
+                        <button onclick="openPurchaseModal('${key}', '${item.name}')" class="btn-primary mt-3 py-2 px-4 rounded shadow">Add Purchase Info</button>
+                    `;
+
+                    collectionList.appendChild(itemElement);
+                });
+            });
+        }
+
+        function calculateProfitOrLoss(item) {
+            if (!item.purchasePrice || !item.quantity) return 0;
+            const totalPurchaseValue = item.purchasePrice * item.quantity;
+            const totalCurrentValue = item.price * item.quantity;
+            return totalCurrentValue - totalPurchaseValue;
+        }
+
+        function openPurchaseModal(itemKey, itemName) {
+            currentItemKey = itemKey;
+            itemNameField.textContent = `Item: ${itemName}`;
+            purchasePriceInput.value = '';
+            purchaseQuantityInput.value = '';
+            purchaseModal.classList.remove('hidden');
+        }
+
+        function closePurchaseModal() {
+            purchaseModal.classList.add('hidden');
+        }
+
+        document.getElementById('save-purchase').addEventListener('click', () => {
+            const purchasePrice = parseFloat(purchasePriceInput.value);
+            const purchaseQuantity = parseInt(purchaseQuantityInput.value);
+
+            if (!purchasePrice || !purchaseQuantity) {
+                alert("Please enter valid purchase details.");
                 return;
             }
 
-            const newItemRef = database.ref("collection").push();
-            newItemRef.set({
-                name: itemName,
-                quantity: quantity,
-                purchasePrice: purchasePrice
+            const userId = "demo_user"; // Replace with dynamic user logic
+            const itemRef = database.ref(`users/${userId}/collection/${currentItemKey}`);
+
+            itemRef.update({
+                purchasePrice: purchasePrice,
+                quantity: purchaseQuantity
+            }, (error) => {
+                if (error) {
+                    console.error("Error updating purchase info:", error);
+                } else {
+                    closePurchaseModal();
+                    showCollection();
+                }
             });
-            alert("Item added successfully!");
-        }
-
-        // Fetch and display data
-        database.ref("collection").on("value", (snapshot) => {
-            const data = snapshot.val();
-            const dashboard = document.getElementById("dashboard");
-            dashboard.innerHTML = "";
-
-            let totalProfitLoss = 0;
-
-            for (const key in data) {
-                const item = data[key];
-                const currentPrice = 100; // Replace with real API data
-                const profitLoss = (currentPrice - item.purchasePrice) * item.quantity;
-                totalProfitLoss += profitLoss;
-
-                dashboard.innerHTML += `
-                    <div class="card rounded-lg p-4 text-center">
-                        <h2 class="text-lg font-semibold text-gray-700">${item.name}</h2>
-                        <p>Quantity: ${item.quantity}</p>
-                        <p>Purchase Price: $${item.purchasePrice.toFixed(2)}</p>
-                        <p>Current Price: $${currentPrice.toFixed(2)}</p>
-                        <p class="${profitLoss >= 0 ? "text-profit" : "text-loss"}">
-                            Profit/Loss: $${profitLoss.toFixed(2)}
-                        </p>
-                    </div>
-                `;
-            }
-
-            document.getElementById("total-profit-loss").textContent = `Total Profit/Loss: $${totalProfitLoss.toFixed(2)}`;
         });
+
+        document.getElementById('cancel-purchase').addEventListener('click', closePurchaseModal);
+
+        // Initialize the collection view
+        showCollection();
     </script>
 </body>
 </html>
-
