@@ -8,8 +8,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
     <style>
-        .profit { color: #22c55e; } /* Green for profit */
-        .loss { color: #ef4444; } /* Red for loss */
+        .profit { color: #22c55e; } 
+        .loss { color: #ef4444; } 
     </style>
 </head>
 <body>
@@ -26,13 +26,10 @@
     <div class="container mx-auto my-10 px-4">
         <h1 class="text-4xl font-extrabold text-center mb-10">Manage Your Collection</h1>
 
-        <!-- Collection Display -->
         <div id="collection-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Items will be dynamically added here -->
         </div>
     </div>
 
-    <!-- Modal for Adding Buying Info -->
     <div id="buying-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-gray-800 bg-opacity-50">
         <div class="modal-container bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
             <h2 class="text-2xl font-bold mb-4">Add Buying Info</h2>
@@ -71,7 +68,7 @@
         const purchaseDateInput = document.getElementById('purchase-date');
 
         let currentItemKey = null;
-        let currentWalletKey = null; // Tracks the wallet in which the item exists
+        let currentWalletKey = null;
 
         function showCollection() {
             const userId = "demo_user";
@@ -79,7 +76,7 @@
 
             walletsRef.once("value", (snapshot) => {
                 const wallets = snapshot.val() || {};
-                collectionList.innerHTML = ''; // Clear existing content
+                collectionList.innerHTML = '';
 
                 Object.keys(wallets).forEach(walletKey => {
                     const wallet = wallets[walletKey];
@@ -157,7 +154,6 @@
 
         document.getElementById('cancel-buying-info').addEventListener('click', closeBuyingModal);
 
-        // Initialize the collection view
         showCollection();
     </script>
 </body>
