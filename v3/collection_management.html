@@ -7,16 +7,43 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
-    <link rel="stylesheet" src="/v3/assets/css/collection_management.css">
+    <script src="/v3/assets/js/mobile_menu.js"></script>
+    <link rel="stylesheet" href="/v3/assets/css/collection_management.css">
 </head>
 <body>
     <nav class="bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-lg">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold tracking-wide text-yellow-400">BullionBase</h1>
+            <h1 class="text-2xl font-extrabold tracking-wide text-yellow-400">
+                BullionBase
+            </h1>
+    
             <div class="hidden md:flex space-x-8">
-                <a href="index.html" class="hover:text-yellow-400 font-semibold transition duration-300">Dashboard</a>
-                <a href="add-collection.html" class="hover:text-yellow-400 font-semibold transition duration-300">Add to Collection</a>
+                <a href="index.html" class="hover:text-yellow-400 font-semibold transition duration-300">
+                    Dashboard
+                </a>
+                <a href="add-collection.html" class="hover:text-yellow-400 font-semibold transition duration-300">
+                    Add to Collection
+                </a>
+                <a href="collection_management.html" class="hover:text-yellow-400 font-semibold transition duration-300">
+                    Collection Management
+                </a>
             </div>
+    
+            <button class="block md:hidden text-white focus:outline-none" onclick="toggleMobileMenu()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 6h16M4 12h16m-7 6h7"
+                    />
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 p-4">
+            <a href="index.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Dashboard</a>
+            <a href="add-collection.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Add to Collection</a>
+            <a href="collection_management.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Collection Management</a>
         </div>
     </nav>
     <div class="container mx-auto my-10 px-4 text-center ">
@@ -87,125 +114,125 @@
         </div>
     </div>
     <script>
-     const firebaseConfig = {
-        apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
-        authDomain: "cangoldinvestment.firebaseapp.com",
-        databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
-        projectId: "cangoldinvestment",
-        storageBucket: "cangoldinvestment.appspot.com",
-        messagingSenderId: "1052369951680",
-        appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
-    };
-
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        const collectionList = document.getElementById('collection-list');
-        const emptyCollectionMessage = document.getElementById('empty-collection-message');
-        const buyingModal = document.getElementById('buying-modal');
-        const itemNameField = document.getElementById('item-name');
-        const purchasePriceInput = document.getElementById('purchase-price');
-        const purchaseDateInput = document.getElementById('purchase-date');
-
-        let currentItemKey = null;
-        let currentWalletKey = null;
-
-        function showCollection() {
-            const userId = "demo_user";
-            const walletsRef = database.ref(`users/${userId}/wallets`);
-
-            walletsRef.once("value", (snapshot) => {
-                const wallets = snapshot.val() || {};
-                collectionList.innerHTML = '';
-
-                let hasItems = false;
-
-                Object.keys(wallets).forEach(walletKey => {
-                    const wallet = wallets[walletKey];
-                    const collection = wallet.collection || {};
-
-                    Object.keys(collection).forEach(itemKey => {
-                        hasItems = true; // Found an item
-                        const item = collection[itemKey];
-                        const profitOrLoss = calculateProfitOrLoss(item);
-
-                        const itemElement = document.createElement('div');
-                        itemElement.className = 'card rounded-lg shadow-lg p-6 bg-white text-center';
-
-                        itemElement.innerHTML = `
-                            <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
-                            <p class="text-gray-600 mt-2">Current Price: <span class="font-bold">${item.price}</span></p>
-                            <p class="text-gray-600">Quantity: <span class="font-bold">${item.quantity}</span></p>
-                            <p class="text-gray-600">Purchase Price: <span class="font-bold">${item.purchasePrice || 'N/A'}</span></p>
-                            <p class="text-gray-600">Purchase Date: <span class="font-bold">${item.purchaseDate || 'N/A'}</span></p>
-                            <p class="mt-4 ${profitOrLoss > 0 ? 'profit' : 'loss'}">
-                                ${profitOrLoss > 0 ? 'Profit' : 'Loss'}: <span>${profitOrLoss.toFixed(2)}%</span>
-                            </p>
-                            <button onclick="openBuyingModal('${walletKey}', '${itemKey}', '${item.name}')" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">Add Buying Info</button>
-                        `;
-
-                        collectionList.appendChild(itemElement);
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+            authDomain: "cangoldinvestment.firebaseapp.com",
+            databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
+            projectId: "cangoldinvestment",
+            storageBucket: "cangoldinvestment.appspot.com",
+            messagingSenderId: "1052369951680",
+            appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
+        };
+        
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+        
+            const collectionList = document.getElementById('collection-list');
+            const emptyCollectionMessage = document.getElementById('empty-collection-message');
+            const buyingModal = document.getElementById('buying-modal');
+            const itemNameField = document.getElementById('item-name');
+            const purchasePriceInput = document.getElementById('purchase-price');
+            const purchaseDateInput = document.getElementById('purchase-date');
+        
+            let currentItemKey = null;
+            let currentWalletKey = null;
+        
+            function showCollection() {
+                const userId = "demo_user";
+                const walletsRef = database.ref(`users/${userId}/wallets`);
+        
+                walletsRef.once("value", (snapshot) => {
+                    const wallets = snapshot.val() || {};
+                    collectionList.innerHTML = '';
+        
+                    let hasItems = false;
+        
+                    Object.keys(wallets).forEach(walletKey => {
+                        const wallet = wallets[walletKey];
+                        const collection = wallet.collection || {};
+        
+                        Object.keys(collection).forEach(itemKey => {
+                            hasItems = true; // Found an item
+                            const item = collection[itemKey];
+                            const profitOrLoss = calculateProfitOrLoss(item);
+        
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'card rounded-lg shadow-lg p-6 bg-white text-center';
+        
+                            itemElement.innerHTML = `
+                                <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
+                                <p class="text-gray-600 mt-2">Current Price: <span class="font-bold">${item.price}</span></p>
+                                <p class="text-gray-600">Quantity: <span class="font-bold">${item.quantity}</span></p>
+                                <p class="text-gray-600">Purchase Price: <span class="font-bold">${item.purchasePrice || 'N/A'}</span></p>
+                                <p class="text-gray-600">Purchase Date: <span class="font-bold">${item.purchaseDate || 'N/A'}</span></p>
+                                <p class="mt-4 ${profitOrLoss > 0 ? 'profit' : 'loss'}">
+                                    ${profitOrLoss > 0 ? 'Profit' : 'Loss'}: <span>${profitOrLoss.toFixed(2)}%</span>
+                                </p>
+                                <button onclick="openBuyingModal('${walletKey}', '${itemKey}', '${item.name}')" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">Add Buying Info</button>
+                            `;
+        
+                            collectionList.appendChild(itemElement);
+                        });
                     });
+        
+                    if (hasItems) {
+                        collectionList.classList.remove('hidden');
+                        emptyCollectionMessage.classList.add('hidden');
+                    } else {
+                        collectionList.classList.add('hidden');
+                        emptyCollectionMessage.classList.remove('hidden');
+                    }
                 });
-
-                if (hasItems) {
-                    collectionList.classList.remove('hidden');
-                    emptyCollectionMessage.classList.add('hidden');
-                } else {
-                    collectionList.classList.add('hidden');
-                    emptyCollectionMessage.classList.remove('hidden');
-                }
-            });
-        }
-
-        function calculateProfitOrLoss(item) {
-            if (!item.purchasePrice) return 0;
-            const currentPrice = parseFloat(item.price) || 0;
-            const purchasePrice = parseFloat(item.purchasePrice) || 0;
-            return ((currentPrice - purchasePrice) / purchasePrice) * 100;
-        }
-
-        function openBuyingModal(walletKey, itemKey, itemName) {
-            currentItemKey = itemKey;
-            currentWalletKey = walletKey;
-            itemNameField.textContent = `Item: ${itemName}`;
-            purchasePriceInput.value = '';
-            purchaseDateInput.value = '';
-            buyingModal.classList.remove('hidden');
-        }
-
-        function closeBuyingModal() {
-            buyingModal.classList.add('hidden');
-        }
-
-        document.getElementById('save-buying-info').addEventListener('click', () => {
-            const purchasePrice = parseFloat(purchasePriceInput.value);
-            const purchaseDate = purchaseDateInput.value;
-
-            if (!purchasePrice || !purchaseDate) {
-                alert("Please enter valid purchase details.");
-                return;
             }
-
-            const userId = "demo_user";
-            const itemRef = database.ref(`users/${userId}/wallets/${currentWalletKey}/collection/${currentItemKey}`);
-
-            itemRef.update({
-                purchasePrice: purchasePrice,
-                purchaseDate: purchaseDate
-            }, (error) => {
-                if (error) {
-                    console.error("Error updating purchase info:", error);
-                } else {
-                    closeBuyingModal();
-                    showCollection();
+        
+            function calculateProfitOrLoss(item) {
+                if (!item.purchasePrice) return 0;
+                const currentPrice = parseFloat(item.price) || 0;
+                const purchasePrice = parseFloat(item.purchasePrice) || 0;
+                return ((currentPrice - purchasePrice) / purchasePrice) * 100;
+            }
+        
+            function openBuyingModal(walletKey, itemKey, itemName) {
+                currentItemKey = itemKey;
+                currentWalletKey = walletKey;
+                itemNameField.textContent = `Item: ${itemName}`;
+                purchasePriceInput.value = '';
+                purchaseDateInput.value = '';
+                buyingModal.classList.remove('hidden');
+            }
+        
+            function closeBuyingModal() {
+                buyingModal.classList.add('hidden');
+            }
+        
+            document.getElementById('save-buying-info').addEventListener('click', () => {
+                const purchasePrice = parseFloat(purchasePriceInput.value);
+                const purchaseDate = purchaseDateInput.value;
+        
+                if (!purchasePrice || !purchaseDate) {
+                    alert("Please enter valid purchase details.");
+                    return;
                 }
+        
+                const userId = "demo_user";
+                const itemRef = database.ref(`users/${userId}/wallets/${currentWalletKey}/collection/${currentItemKey}`);
+        
+                itemRef.update({
+                    purchasePrice: purchasePrice,
+                    purchaseDate: purchaseDate
+                }, (error) => {
+                    if (error) {
+                        console.error("Error updating purchase info:", error);
+                    } else {
+                        closeBuyingModal();
+                        showCollection();
+                    }
+                });
             });
-        });
-
-        document.getElementById('cancel-buying-info').addEventListener('click', closeBuyingModal);
-
-        showCollection();
-    </script>
+        
+            document.getElementById('cancel-buying-info').addEventListener('click', closeBuyingModal);
+        
+            showCollection();
+        </script>
 </body>
 </html>
