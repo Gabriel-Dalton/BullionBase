@@ -7,13 +7,10 @@ BullionBase simplifies your gold and silver investment tracking by fetching real
 ## Features
 - **Real-Time Data**: Fetches up-to-date buy and sell prices for gold and silver directly from VBCE.
 - **Portfolio Management**: Add, edit, and track your gold and silver investments with ease.
-- **Comprehensive Calculations**: Automatically calculates the current value of your collection, both buy and sell prices.
+- **Custom Collection Management**: Add items to specific wallets, view collections, and track their real-time values.
+- **Empty State Messaging**: Displays helpful messaging when no items exist in your portfolio, encouraging users to start adding.
 - **Wallet Management**: Create and manage multiple wallets to organize your assets by categories or purposes.
-- **Custom Collection**: Add items to specific wallets, view collections, and track real-time values for each wallet.
-- **Error Handling & Feedback**: User-friendly error messages and real-time feedback for seamless data entry and management.
-- **Interactive Dashboard**: Provides a visually appealing and responsive dashboard to view and manage your assets.
 - **Secure Data Storage**: User data is stored securely using Firebase Realtime Database.
-- **Easy Navigation**: Access portfolio summaries, add new items, and view your entire collection seamlessly.
 - **Mobile-Friendly Design**: Fully responsive layout for use on any device.
 
 ---
@@ -26,22 +23,18 @@ BullionBase simplifies your gold and silver investment tracking by fetching real
 ---
 
 ## Usage
-1. **Portfolio Summary**:
-   - View your current portfolio’s **Sell Value** (estimated price if sold) and **Buy Value** (cost to replace your portfolio).
-   - Get a detailed overview of gold and silver weights in your portfolio.
+1. **Manage Your Collection**:
+   - View your collection, including real-time prices, quantities, and values.
+   - Add buying information for assets, including purchase price and date.
+   - If the portfolio is empty, a helpful message appears with a call-to-action button to add new items.
 
-2. **Wallet Management**:
-   - Create multiple wallets for better organization of your assets.
-   - Select wallets from a dropdown menu to switch between collections.
-   - Delete unused wallets with ease.
-
-3. **Add to Collection**:
+2. **Add to Collection**:
    - Navigate to the "Add to Collection" page to input new items, including quantity, type, and price.
    - Assign items to specific wallets for organized tracking.
 
-4. **Manage Your Collection**:
-   - Update or remove existing items in your portfolio.
-   - Track the real-time value of your assets in each wallet.
+3. **Wallet Management**:
+   - Create multiple wallets for better organization of your assets.
+   - Switch between wallets seamlessly to view or manage specific collections.
 
 ---
 
