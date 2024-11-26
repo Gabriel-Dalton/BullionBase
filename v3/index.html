@@ -23,6 +23,9 @@
                 <a href="add-collection.html" class="hover:text-yellow-400 font-semibold transition duration-300">
                     Add to Collection
                 </a>
+                <a href="collection_management.html" class="hover:text-yellow-400 font-semibold transition duration-300">
+                    Collection Management
+                </a>
             </div>
             <div id="wallet-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
                 <div class="modal-container bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
@@ -50,9 +53,8 @@
                     </div>
                 </div>
             </div>
-            
-            
-<div id="wallet-container" class="flex space-x-4 items-center">
+    
+            <div id="wallet-container" class="flex space-x-4 items-center">
                 <select
                     id="wallet-selector"
                     class="bg-gray-700 text-white px-4 py-2 rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition duration-300 hidden"
@@ -80,8 +82,10 @@
         <div id="mobile-menu" class="hidden md:hidden bg-gray-800 p-4">
             <a href="index.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Dashboard</a>
             <a href="add-collection.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Add to Collection</a>
+            <a href="collection_management.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Collection Management</a>
         </div>
     </nav>
+    
     <script>
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById("mobile-menu");
