@@ -9,7 +9,26 @@
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
     <style>
         .profit { color: #22c55e; } 
-        .loss { color: #ef4444; } 
+        .loss { color: #ef4444; }
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        .modal {
+            background: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
     </style>
 </head>
 <body>
@@ -22,13 +41,34 @@
             </div>
         </div>
     </nav>
-
-    <div class="container mx-auto my-10 px-4">
-        <h1 class="text-4xl font-extrabold text-center mb-10">Manage Your Collection</h1>
-
-        <div id="collection-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="container mx-auto my-10 px-4 text-center ">
+        <h1 class="text-5xl font-extrabold mb-10 text-gray-800 tracking-wide">
+           Manage Your Collection</span>
+        </h1>
+        <button onclick="openProfitModal()" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">
+    How is Profit Calculated?
+</button>
+    </div>
+    <div id="collection-container" class="flex flex-wrap justify-center items-center gap-6">
+        <div id="collection-list" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+        <div id="empty-collection-message" class="text-center text-gray-600">
+            <h2 class="text-2xl font-semibold mb-4">Your collection is empty!</h2>
+            <p class="mb-6">Start building your collection by adding items using the "Add to Collection" page.</p>
+            <a href="add-collection.html" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300">Add Items</a>
         </div>
     </div>
+
+
+<script>
+    function openProfitModal() {
+        document.getElementById("profit-modal").classList.remove("hidden");
+    }
+
+    function closeProfitModal() {
+        document.getElementById("profit-modal").classList.add("hidden");
+    }
+</script>
 
     <div id="buying-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-gray-800 bg-opacity-50">
         <div class="modal-container bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
@@ -46,7 +86,28 @@
             </div>
         </div>
     </div>
-
+    <div id="profit-modal" class="hidden modal">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">How Profit is Calculated</h2>
+            <p class="text-gray-700 mb-4">The profit percentage is calculated using the formula:</p>
+            <div class="bg-gray-100 p-4 rounded-md shadow-inner text-center mb-4">
+                <code class="block text-lg font-semibold">
+                    Profit Percentage = ((Current Price - Purchase Price) / Purchase Price) × 100
+                </code>
+            </div>
+            <p class="text-gray-700">
+                <strong>Example:</strong><br>
+                Current Price = 5000 <br>
+                Purchase Price = 4000 <br>
+                Profit Percentage = ((5000 - 4000) / 4000) × 100 = <strong>25%</strong>
+            </p>
+            <div class="flex justify-end mt-6">
+                <button onclick="closeProfitModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-md font-bold hover:bg-gray-400 transition duration-300">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
     <script>
      const firebaseConfig = {
         apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
@@ -62,6 +123,7 @@
         const database = firebase.database();
 
         const collectionList = document.getElementById('collection-list');
+        const emptyCollectionMessage = document.getElementById('empty-collection-message');
         const buyingModal = document.getElementById('buying-modal');
         const itemNameField = document.getElementById('item-name');
         const purchasePriceInput = document.getElementById('purchase-price');
@@ -78,16 +140,19 @@
                 const wallets = snapshot.val() || {};
                 collectionList.innerHTML = '';
 
+                let hasItems = false;
+
                 Object.keys(wallets).forEach(walletKey => {
                     const wallet = wallets[walletKey];
                     const collection = wallet.collection || {};
 
                     Object.keys(collection).forEach(itemKey => {
+                        hasItems = true; // Found an item
                         const item = collection[itemKey];
                         const profitOrLoss = calculateProfitOrLoss(item);
 
                         const itemElement = document.createElement('div');
-                        itemElement.className = 'card rounded-lg shadow-lg p-6 text-center';
+                        itemElement.className = 'card rounded-lg shadow-lg p-6 bg-white text-center';
 
                         itemElement.innerHTML = `
                             <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
@@ -104,6 +169,14 @@
                         collectionList.appendChild(itemElement);
                     });
                 });
+
+                if (hasItems) {
+                    collectionList.classList.remove('hidden');
+                    emptyCollectionMessage.classList.add('hidden');
+                } else {
+                    collectionList.classList.add('hidden');
+                    emptyCollectionMessage.classList.remove('hidden');
+                }
             });
         }
 
