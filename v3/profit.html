@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit Dashboard - BullionBase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
+    <script src="/v3/assets/js/profit.js"></script>
+
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold tracking-wide text-yellow-400">
+                BullionBase
+            </h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="hover:text-yellow-400 font-semibold transition duration-300">Dashboard</a>
+                <a href="add-collection.html" class="hover:text-yellow-400 font-semibold transition duration-300">Add to Collection</a>
+                <a href="collection_management.html" class="hover:text-yellow-400 font-semibold transition duration-300">Collection Management</a>
+                <a href="profits.html" class="hover:text-yellow-400 font-semibold transition duration-300">Profit Dashboard</a>
+            </div>
+            <button class="block md:hidden text-white focus:outline-none" onclick="toggleMobileMenu()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden bg-gray-800 p-4">
+            <a href="/v3/index.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Dashboard</a>
+            <a href="/v3/add-collection.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Add to Collection</a>
+            <a href="/v3/collection_management.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Collection Management</a>
+            <a href="/v3/profit.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Profit Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto my-10 px-4">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-10 text-gray-800 tracking-wide text-center">
+            All Profits
+        </h1>
+        <div id="profits-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 my-10">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">Profit/Loss Overview</h2>
+        <canvas id="collection-chart" class="bg-white rounded-lg shadow-lg p-4"></canvas>
+    </div>
+</body>
+</html>
