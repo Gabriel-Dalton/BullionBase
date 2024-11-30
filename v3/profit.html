@@ -8,15 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-database-compat.js"></script>
-    <script src="/v3/assets/js/profit.js"></script>
-
 </head>
 <body class="bg-gray-50">
     <nav class="bg-gradient-to-r from-gray-800 to-gray-900 text-white shadow-lg">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold tracking-wide text-yellow-400">
-                BullionBase
-            </h1>
+            <h1 class="text-2xl font-extrabold tracking-wide text-yellow-400">BullionBase</h1>
             <div class="hidden md:flex space-x-8">
                 <a href="index.html" class="hover:text-yellow-400 font-semibold transition duration-300">Dashboard</a>
                 <a href="add-collection.html" class="hover:text-yellow-400 font-semibold transition duration-300">Add to Collection</a>
@@ -30,25 +26,127 @@
             </button>
         </div>
         <div id="mobile-menu" class="hidden bg-gray-800 p-4">
-            <a href="/v3/index.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Dashboard</a>
-            <a href="/v3/add-collection.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Add to Collection</a>
-            <a href="/v3/collection_management.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Collection Management</a>
-            <a href="/v3/profit.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Profit Dashboard</a>
+            <a href="index.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Dashboard</a>
+            <a href="add-collection.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Add to Collection</a>
+            <a href="collection_management.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Collection Management</a>
+            <a href="profits.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Profit Dashboard</a>
         </div>
     </nav>
 
     <div class="container mx-auto my-10 px-4">
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-10 text-gray-800 tracking-wide text-center">
-            All Profits
-        </h1>
-        <div id="profits-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        </div>
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-10 text-gray-800 tracking-wide text-center">All Profits</h1>
+        <div id="profits-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </div>
 
     <div class="container mx-auto px-4 my-10">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">Profit/Loss Overview</h2>
         <canvas id="collection-chart" class="bg-white rounded-lg shadow-lg p-4"></canvas>
     </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+            authDomain: "cangoldinvestment.firebaseapp.com",
+            databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
+            projectId: "cangoldinvestment",
+            storageBucket: "cangoldinvestment.appspot.com",
+            messagingSenderId: "1052369951680",
+            appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const profitsContainer = document.getElementById('profits-container');
+        const chartCanvas = document.getElementById('collection-chart');
+        let chart;
+
+        function loadProfitDashboard() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemKey = urlParams.get('itemKey');
+            const userId = "demo_user";
+            const walletsRef = database.ref(`users/${userId}/wallets`);
+
+            walletsRef.once("value", (snapshot) => {
+                const wallets = snapshot.val() || {};
+                profitsContainer.innerHTML = ''; 
+                const chartData = {
+                    labels: [],
+                    datasets: [{
+                        label: 'Profit/Loss Percentage',
+                        data: [],
+                        backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                        borderWidth: 1
+                    }]
+                };
+
+                if (itemKey) {
+                    Object.keys(wallets).forEach(walletKey => {
+                        const collection = wallets[walletKey]?.collection || {};
+                        if (collection[itemKey]) {
+                            const item = collection[itemKey];
+                            displayItemProfitDetails(item);
+                            chartData.labels.push(item.name);
+                            chartData.datasets[0].data.push(calculateProfitOrLoss(item));
+                        }
+                    });
+                } else {
+                    Object.keys(wallets).forEach(walletKey => {
+                        const collection = wallets[walletKey]?.collection || {};
+                        Object.keys(collection).forEach(key => {
+                            const item = collection[key];
+                            profitsContainer.innerHTML += `
+                                <div class="card rounded-lg shadow-lg p-6 bg-white text-center">
+                                    <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
+                                    <p class="text-gray-600">Current Price: ${item.price}</p>
+                                    <p class="text-gray-600">Profit/Loss: ${item.purchasePrice ? calculateProfitOrLoss(item).toFixed(2) + '%' : 'N/A'}</p>
+                                </div>`;
+                            if (item.purchasePrice) {
+                                chartData.labels.push(item.name);
+                                chartData.datasets[0].data.push(calculateProfitOrLoss(item));
+                            }
+                        });
+                    });
+                }
+
+                renderChart(chartData);
+            });
+        }
+
+        function calculateProfitOrLoss(item) {
+            if (!item.purchasePrice) return 0;
+            const currentPrice = parseFloat(item.price) || 0;
+            const purchasePrice = parseFloat(item.purchasePrice) || 0;
+            return ((currentPrice - purchasePrice) / purchasePrice) * 100;
+        }
+
+        function renderChart(chartData) {
+            if (chart) chart.destroy(); 
+            chart = new Chart(chartCanvas.getContext('2d'), {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Profit/Loss Overview' }
+                    }
+                }
+            });
+        }
+
+        function displayItemProfitDetails(item) {
+            profitsContainer.innerHTML = `
+                <div class="card rounded-lg shadow-lg p-6 bg-white text-center">
+                    <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
+                    <p class="text-gray-600">Current Price: ${item.price}</p>
+                    <p class="text-gray-600">Purchase Price: ${item.purchasePrice || 'N/A'}</p>
+                    <p class="text-gray-600">Profit/Loss: ${item.purchasePrice ? calculateProfitOrLoss(item).toFixed(2) + '%' : 'N/A'}</p>
+                </div>`;
+        }
+
+        loadProfitDashboard();
+    </script>
 </body>
 </html>

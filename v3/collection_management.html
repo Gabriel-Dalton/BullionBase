@@ -49,90 +49,49 @@
             <a href="add-collection.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Add to Collection</a>
             <a href="collection_management.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Collection Management</a>
             <a href="profits.html" class="block text-white hover:text-yellow-400 font-semibold py-2">Profit Dashboard</a>
-            
         </div>
     </nav>
-    <div class="container mx-auto my-10 px-4 text-center ">
+    <div class="container mx-auto my-10 px-4 text-center">
         <h1 class="text-5xl font-extrabold mb-10 text-gray-800 tracking-wide">
-           Manage Your Collection</span>
+            Manage Your Collection
         </h1>
         <button onclick="openProfitModal()" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">
-    How is Profit Calculated?
-</button>
+            How is Profit Calculated?
+        </button>
     </div>
     <div id="collection-container" class="flex flex-wrap justify-center items-center gap-6">
-        <div id="collection-list" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        </div>
+        <div id="collection-list" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         <div id="empty-collection-message" class="text-center text-gray-600">
             <h2 class="text-2xl font-semibold mb-4">Your collection is empty!</h2>
             <p class="mb-6">Start building your collection by adding items using the "Add to Collection" page.</p>
             <a href="add-collection.html" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300">Add Items</a>
         </div>
     </div>
-
-
-<script>
-    function openProfitModal() {
-        document.getElementById("profit-modal").classList.remove("hidden");
-    }
-
-    function closeProfitModal() {
-        document.getElementById("profit-modal").classList.add("hidden");
-    }
-</script>
-<div id="multi-buying-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-gray-800 bg-opacity-50">
-    <div class="modal-container bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-4">Add Buying Info</h2>
-        <div>
-            <p id="multi-item-name" class="text-lg font-semibold mb-4"></p>
-            <p class="text-gray-700 mb-4">You have multiple quantities of this item. How would you like to add buying info?</p>
-            <button id="single-buying-btn" class="bg-yellow-400 text-gray-900 px-5 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300 shadow-lg mb-4">Add Single Price/Date for All</button>
-            <button id="multi-buying-btn" class="bg-yellow-400 text-gray-900 px-5 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300 shadow-lg">Add Different Prices/Dates</button>
-        </div>
-    </div>
-</div>
-
-    <div id="buying-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-gray-800 bg-opacity-50">
+    <div id="buying-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
         <div class="modal-container bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
             <h2 class="text-2xl font-bold mb-4">Add Buying Info</h2>
             <div>
                 <p id="item-name" class="text-lg font-semibold mb-4"></p>
-                <label for="purchase-price" class="block text-gray-700 font-medium mb-2">Purchase Price:</label>
-                <input id="purchase-price" type="number" step="0.01" placeholder="Enter price per unit" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4">
-                <label for="purchase-date" class="block text-gray-700 font-medium mb-2">Purchase Date:</label>
-                <input id="purchase-date" type="date" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4">
+                <label for="unknown-purchase" class="block text-gray-700 font-medium mb-2">
+                    <input type="checkbox" id="unknown-purchase" class="mr-2" onchange="togglePurchaseFields()">
+                    I don't know the purchase price and date
+                </label>
+                <div id="purchase-fields">
+                    <label for="purchase-price" class="block text-gray-700 font-medium mb-2">Purchase Price:</label>
+                    <input id="purchase-price" type="number" step="0.01" placeholder="Enter price per unit" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4">
+                    <label for="purchase-date" class="block text-gray-700 font-medium mb-2">Purchase Date:</label>
+                    <input id="purchase-date" type="date" class="w-full px-4 py-2 text-black border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-4">
+                </div>
             </div>
             <div class="flex justify-center space-x-4 mt-4">
                 <button id="save-buying-info" class="bg-yellow-400 text-gray-900 px-5 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300 shadow-lg">Save</button>
-                <button id="cancel-buying-info" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-md font-bold hover:bg-gray-400 transition duration-300 shadow-lg">Cancel</button>
-            </div>
-        </div>
-    </div>
-    <div id="profit-modal" class="hidden modal">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-96">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">How Profit is Calculated</h2>
-            <p class="text-gray-700 mb-4">The profit percentage is calculated using the formula:</p>
-            <div class="bg-gray-100 p-4 rounded-md shadow-inner text-center mb-4">
-                <code class="block text-lg font-semibold">
-                    Profit Percentage = ((Current Price - Purchase Price) / Purchase Price) × 100
-                </code>
-            </div>
-            <p class="text-gray-700">
-                <strong>Example:</strong><br>
-                Current Price = 5000 <br>
-                Purchase Price = 4000 <br>
-                Profit Percentage = ((5000 - 4000) / 4000) × 100 = <strong>25%</strong>
-            </p>
-            <div class="flex justify-end mt-6">
-                <button onclick="closeProfitModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-md font-bold hover:bg-gray-400 transition duration-300">
-                    Close
-                </button>
+                <button onclick="closeBuyingModal()" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-md font-bold hover:bg-gray-400 transition duration-300 shadow-lg">Cancel</button>
             </div>
         </div>
     </div>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyBGL4qe8Qf4t0KqSkB48One76sV2HHbmjY",
+            apiKey: "AIzaSyB...",
             authDomain: "cangoldinvestment.firebaseapp.com",
             databaseURL: "https://cangoldinvestment-default-rtdb.firebaseio.com",
             projectId: "cangoldinvestment",
@@ -140,226 +99,58 @@
             messagingSenderId: "1052369951680",
             appId: "1:1052369951680:web:5c0a1bb89a58df91718625"
         };
-    
+
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-    
-        const collectionList = document.getElementById('collection-list');
-        const emptyCollectionMessage = document.getElementById('empty-collection-message');
-        const buyingModal = document.getElementById('buying-modal');
-        const itemNameField = document.getElementById('item-name');
-        const purchasePriceInput = document.getElementById('purchase-price');
-        const purchaseDateInput = document.getElementById('purchase-date');
-    
+
+        const collectionList = document.getElementById("collection-list");
+        const emptyCollectionMessage = document.getElementById("empty-collection-message");
+        const buyingModal = document.getElementById("buying-modal");
+        const itemNameField = document.getElementById("item-name");
+        const purchasePriceInput = document.getElementById("purchase-price");
+        const purchaseDateInput = document.getElementById("purchase-date");
+        const unknownPurchaseCheckbox = document.getElementById("unknown-purchase");
+
         let currentItemKey = null;
         let currentWalletKey = null;
-    
-        function showCollection() {
-            const userId = "demo_user";
-            const walletsRef = database.ref(`users/${userId}/wallets`);
-    
-            walletsRef.once("value", (snapshot) => {
-                const wallets = snapshot.val() || {};
-                collectionList.innerHTML = '';
-    
-                let hasItems = false;
-    
-                Object.keys(wallets).forEach(walletKey => {
-                    const wallet = wallets[walletKey];
-                    const collection = wallet.collection || {};
-    
-                    Object.keys(collection).forEach(itemKey => {
-                        hasItems = true; // Found an item
-                        const item = collection[itemKey];
-                        const profitOrLoss = calculateProfitOrLoss(item);
-    
-                        const itemElement = document.createElement('div');
-                        itemElement.className = 'card rounded-lg shadow-lg p-6 bg-white text-center';
-    
-                        itemElement.innerHTML = `
-                            <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
-                            <p class="text-gray-600 mt-2">Current Price: <span class="font-bold">${item.price}</span></p>
-                            <p class="text-gray-600">Quantity: <span class="font-bold">${item.quantity}</span></p>
-                            <p class="text-gray-600">Purchase Price: <span class="font-bold">${item.purchasePrice || 'N/A'}</span></p>
-                            <p class="text-gray-600">Purchase Date: <span class="font-bold">${item.purchaseDate || 'N/A'}</span></p>
-                            <p class="mt-4 ${profitOrLoss > 0 ? 'profit' : 'loss'}">
-                                ${profitOrLoss > 0 ? 'Profit' : 'Loss'}: <span>${profitOrLoss.toFixed(2)}%</span>
-                            </p>
-                            <button onclick="openBuyingModal('${walletKey}', '${itemKey}', '${item.name}', ${item.quantity})" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">Add Buying Info</button>
-                        `;
-    
-                        collectionList.appendChild(itemElement);
-                    });
-                });
-    
-                if (hasItems) {
-                    collectionList.classList.remove('hidden');
-                    emptyCollectionMessage.classList.add('hidden');
-                } else {
-                    collectionList.classList.add('hidden');
-                    emptyCollectionMessage.classList.remove('hidden');
-                }
-            });
-        }
-    
-        function calculateProfitOrLoss(item) {
-            if (!item.purchasePrice) return 0;
-            const currentPrice = parseFloat(item.price) || 0;
-            const purchasePrice = parseFloat(item.purchasePrice) || 0;
-            return ((currentPrice - purchasePrice) / purchasePrice) * 100;
-        }
-    
 
-        function openBuyingModal(walletKey, itemKey, itemName, quantity) {
-    currentItemKey = itemKey;
-    currentWalletKey = walletKey;
-
-    if (quantity > 1) {
-        document.getElementById("multi-item-name").textContent = `Item: ${itemName}`;
-        document.getElementById("multi-buying-modal").classList.remove("hidden");
-
-        document.getElementById("single-buying-btn").onclick = () => {
-            document.getElementById("multi-buying-modal").classList.add("hidden");
-            document.getElementById("buying-modal").classList.remove("hidden");
-        };
-
-        document.getElementById("multi-buying-btn").onclick = () => {
-            document.getElementById("multi-buying-modal").classList.add("hidden");
-            openMultiBuyingModal(quantity, itemName);
-        };
-    } else {
-        itemNameField.textContent = `Item: ${itemName}`;
-        purchasePriceInput.value = '';
-        purchaseDateInput.value = '';
-        buyingModal.classList.remove('hidden');
-    }
-}
-
-function openMultiBuyingModal(quantity, itemName) {
-    const existingModal = document.getElementById("dynamic-multi-buying-modal");
-    if (existingModal) {
-        existingModal.remove();
-    }
-
-    const modalOverlay = document.createElement("div");
-    modalOverlay.id = "dynamic-multi-buying-modal";
-
-    const modalContainer = document.createElement("div");
-    modalContainer.className = "modal-container";
-
-    const modalHeader = document.createElement("div");
-    modalHeader.className = "modal-header";
-    const modalTitle = document.createElement("h2");
-    modalTitle.className = "text-2xl font-bold mb-4";
-    modalTitle.textContent = `Add Buying Info for ${itemName}`;
-    modalHeader.appendChild(modalTitle);
-
-    const closeButton = document.createElement("button");
-    closeButton.className = "text-gray-600 hover:text-gray-900 font-semibold";
-    closeButton.textContent = "×";
-    closeButton.onclick = () => modalOverlay.remove();
-    modalHeader.appendChild(closeButton);
-
-    modalContainer.appendChild(modalHeader);
-
-    const formContainer = document.createElement("div");
-    formContainer.className = "flex flex-col space-y-4";
-
-    for (let i = 1; i <= quantity; i++) {
-        const fieldSet = document.createElement("div");
-        fieldSet.className = "flex flex-col mb-4";
-
-        const priceInput = document.createElement("input");
-        priceInput.type = "number";
-        priceInput.id = `price-${i}`;
-        priceInput.placeholder = `Enter price for quantity ${i}`;
-        priceInput.className = "w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 mb-2";
-
-        const dateInput = document.createElement("input");
-        dateInput.type = "date";
-        dateInput.id = `date-${i}`;
-        dateInput.className = "w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400";
-
-        fieldSet.appendChild(priceInput);
-        fieldSet.appendChild(dateInput);
-        formContainer.appendChild(fieldSet);
-    }
-
-    const buttonContainer = document.createElement("div");
-    buttonContainer.className = "flex justify-end space-x-4 mt-4";
-
-    const saveButton = document.createElement("button");
-    saveButton.className = "bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold hover:bg-yellow-500 transition duration-300";
-    saveButton.textContent = "Save Info";
-    saveButton.onclick = () => {
-        saveMultiBuyingInfo(quantity);
-        modalOverlay.remove();
-    };
-
-    const cancelButton = document.createElement("button");
-    cancelButton.className = "bg-gray-300 text-gray-800 px-4 py-2 rounded-md font-bold hover:bg-gray-400 transition duration-300";
-    cancelButton.textContent = "Cancel";
-    cancelButton.onclick = () => {
-        modalOverlay.remove();
-    };
-
-    buttonContainer.appendChild(cancelButton);
-    buttonContainer.appendChild(saveButton);
-
-    modalContainer.appendChild(formContainer);
-    modalContainer.appendChild(buttonContainer);
-
-    modalOverlay.appendChild(modalContainer);
-    document.body.appendChild(modalOverlay);
-}
-
-function saveMultiBuyingInfo(quantity) {
-    const purchaseData = [];
-    for (let i = 1; i <= quantity; i++) {
-        const price = parseFloat(document.getElementById(`price-${i}`).value);
-        const date = document.getElementById(`date-${i}`).value;
-
-        if (!price || !date) {
-            alert(`Please fill out all fields for quantity ${i}.`);
-            return;
+        function togglePurchaseFields() {
+            const purchaseFields = document.getElementById("purchase-fields");
+            if (unknownPurchaseCheckbox.checked) {
+                purchaseFields.classList.add("hidden");
+                purchasePriceInput.value = "";
+                purchaseDateInput.value = "";
+            } else {
+                purchaseFields.classList.remove("hidden");
+            }
         }
 
-        purchaseData.push({ price, date });
-    }
-
-    const userId = "demo_user";
-    const itemRef = database.ref(`users/${userId}/wallets/${currentWalletKey}/collection/${currentItemKey}`);
-
-    itemRef.update({ purchaseData }, (error) => {
-        if (error) {
-            console.error("Error saving multi-buying info:", error);
-        } else {
-            alert("Buying info saved successfully!");
-            showCollection();
+        function closeBuyingModal() {
+            buyingModal.classList.add("hidden");
         }
-    });
-}
 
-       function closeBuyingModal() {
-            buyingModal.classList.add('hidden');
+        function openBuyingModal(walletKey, itemKey, itemName) {
+            currentItemKey = itemKey;
+            currentWalletKey = walletKey;
+            itemNameField.textContent = `Item: ${itemName}`;
+            unknownPurchaseCheckbox.checked = false;
+            togglePurchaseFields();
+            buyingModal.classList.remove("hidden");
         }
-    
-        document.getElementById('save-buying-info').addEventListener('click', () => {
-            const purchasePrice = parseFloat(purchasePriceInput.value);
-            const purchaseDate = purchaseDateInput.value;
-    
-            if (!purchasePrice || !purchaseDate) {
-                alert("Please enter valid purchase details.");
+
+        document.getElementById("save-buying-info").addEventListener("click", () => {
+            const purchasePrice = parseFloat(purchasePriceInput.value) || null;
+            const purchaseDate = purchaseDateInput.value || null;
+
+            if (!unknownPurchaseCheckbox.checked && (!purchasePrice || !purchaseDate)) {
+                alert("Please enter valid purchase details or select 'I don't know' option.");
                 return;
             }
-    
+
             const userId = "demo_user";
             const itemRef = database.ref(`users/${userId}/wallets/${currentWalletKey}/collection/${currentItemKey}`);
-    
-            itemRef.update({
-                purchasePrice: purchasePrice,
-                purchaseDate: purchaseDate
-            }, (error) => {
+
+            itemRef.update({ purchasePrice, purchaseDate }, (error) => {
                 if (error) {
                     console.error("Error updating purchase info:", error);
                 } else {
@@ -368,11 +159,53 @@ function saveMultiBuyingInfo(quantity) {
                 }
             });
         });
-    
-        document.getElementById('cancel-buying-info').addEventListener('click', closeBuyingModal);
-    
+
+        function redirectToProfitDashboard(itemKey) {
+            window.location.href = `profit.html?itemKey=${itemKey}`;
+        }
+
+        function showCollection() {
+            const userId = "demo_user";
+            const walletsRef = database.ref(`users/${userId}/wallets`);
+
+            walletsRef.once("value", (snapshot) => {
+                const wallets = snapshot.val() || {};
+                collectionList.innerHTML = "";
+
+                let hasItems = false;
+
+                Object.keys(wallets).forEach(walletKey => {
+                    const wallet = wallets[walletKey];
+                    const collection = wallet.collection || {};
+
+                    Object.keys(collection).forEach(itemKey => {
+                        hasItems = true;
+                        const item = collection[itemKey];
+
+                        const itemElement = document.createElement("div");
+                        itemElement.className = "card rounded-lg shadow-lg p-6 bg-white text-center";
+                        itemElement.innerHTML = `
+                            <h2 class="text-lg font-semibold text-gray-800">${item.name}</h2>
+                            <p class="text-gray-600 mt-2">Current Price: ${item.price || "N/A"}</p>
+                            <p class="text-gray-600">Quantity: ${item.quantity || "N/A"}</p>
+                            <button onclick="openBuyingModal('${walletKey}', '${itemKey}', '${item.name}')" class="bg-yellow-400 text-gray-900 px-4 py-2 rounded-md font-bold mt-4 hover:bg-yellow-500 transition duration-300">Edit Purchase Info</button>
+                            <button onclick="redirectToProfitDashboard('${itemKey}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-bold mt-4 hover:bg-blue-600 transition duration-300">View Profit Dashboard</button>
+                        `;
+                        collectionList.appendChild(itemElement);
+                    });
+                });
+
+                if (hasItems) {
+                    collectionList.classList.remove("hidden");
+                    emptyCollectionMessage.classList.add("hidden");
+                } else {
+                    collectionList.classList.add("hidden");
+                    emptyCollectionMessage.classList.remove("hidden");
+                }
+            });
+        }
+
         showCollection();
     </script>
-    
 </body>
 </html>
